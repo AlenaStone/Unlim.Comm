@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Unlimited Communication</title>
+    <!-- Main stylesheet -->
+    <link rel="stylesheet" href="styles.css" />
+</head>
+
+
+<body>
+    <!-- Anchor link for "Back to top" -->
+    <a id="top" class="anchor-top"></a>
+
+    <!-- ================= HEADER ================= -->
+    <header aria-label="Site header">
+        <div class="nav">
+            <div class="logo">
+                <!-- Project logo -->
+                <img src="assets/logo.png" alt="Unlimited Communication logo" />
+            </div>
+            <nav>
+                <ul>
+                    <!-- Navigation links -->
+                    <li><a href="#camera">Camera </a></li>
+                    <li><a href="#gestures">A book of gestures</a></li>
+                </ul>
+            </nav>
+            <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">☀︎ / ☾</button>
+        </div>
+    </header>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main>
+        <!-- ===== CAMERA SECTION ===== -->
+        <!-- Displays live webcam preview and overlay subtitles -->
+        <section id="workspace" class="workspace" aria-label="Workspace">
+            <div class="col camera-col">
+                <section id="camera" aria-labelledby="camera-title">
+                    <h2 id="camera-title">Camera</h2>
+
+                    <!-- Video stage -->
+                    <div class="stage">
+                        <!-- Live webcam stream -->
+                        <video id="preview" playsinline muted></video>
+                        <!-- Text overlay (subtitles rendered here) -->
+                        <div id="overlay" aria-live="polite"></div>
+                    </div>
+
+                    <!-- Camera controls -->
+                    <div class="controls">
+                        <div class="controls-row">
+                            <button id="btnStart">Start Camera</button>
+                            <button id="btnStop" disabled>Stop</button>
+                        </div>
+                        <!-- UI for overlay customization -->
+                        <div class="controls-row">
+                            <label>
+                                Font size
+                                <input id="fontSize" type="range" min="16" max="60" value="28" />
+                            </label>
+                            <label>
+                                <input id="toggleOverlay" type="checkbox" checked />
+                                Show overlay
+                            </label>
+                        </div>
+                        <div class="controls-row text-flow">
+                            <label>
+                                Punctuation
+                                <select id="punctuationChoice">
+                                    <option value="">None</option>
+                                    <option value=".">.</option>
+                                    <option value=",">,</option>
+                                    <option value="?">?</option>
+                                    <option value="!">!</option>
+                                </select>
+                            </label>
+                            <label>
+                                <input id="autoPause" type="checkbox" checked />
+                                Auto pause marker
+                            </label>
+                            <label>
+                                <input id="singleLine" type="checkbox" checked />
+                                Single-line overlay
+                            </label>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            <div class="col transcript-col">
+                <!-- ===== TRANSCRIPT SECTION ===== -->
+                <!-- Text log of recognized gestures and sentences -->
+                <section id="transcript" aria-labelledby="transcript-title">
+                    <h2 id="transcript-title">Transcript</h2>
+
+                    <!-- Dynamic list where recognized text lines appear -->
+                    <div class="transcript-list" id="transcriptList"></div>
+
+                    <!-- Buttons for exporting / managing transcript -->
+                    <div class="transcript-actions">
+                        <button id="btnCopy">Copy</button>
+                        <button id="btnExportTxt">Export .txt</button>
+                        <button id="btnUndo">Undo</button>
+                        <button id="btnClear">Clear</button>
+                    </div>
+                </section>
+            </div>
+        </section>
+
+
+        <!-- ===== GESTURE BOOK ===== -->
+        <!-- Displays cards with gesture examples (images, descriptions, etc.) -->
+<section id="gestures" aria-labelledby="gestures-title">
+  <h2 id="gestures-title">A book of gestures</h2>
+
+  <div class="gestures-grid">
+    <!-- Example cards for Helma -->
+    <div class="gesture-card">
+      <div class="card-top">
+        <img src="assets/hallo.gif" alt="Gesture Hello" />
+      </div>
+      <div class="card-body">
+        <p class="gesture-label">Basics</p>
+        <h3>Hello</h3>
+        <p>Open the chat warmly to start any conversation.</p>
+      </div>
+    </div>
+
+    <div class="gesture-card">
+      <div class="card-top">
+        <img src="assets/danke.gif" alt="Gesture Thank you" />
+      </div>
+      <div class="card-body">
+        <p class="gesture-label">Politeness</p>
+        <h3>Thank you</h3>
+        <p>Send gratitude instantly to acknowledge help or kindness.</p>
+      </div>
+    </div>
+
+    <div class="gesture-card">
+      <div class="card-top">
+        <img src="assets/willkommen.gif" alt="Gesture welcome" />
+      </div>
+      <div class="card-body">
+        <p class="gesture-label">Greeting</p>
+        <h3>Welcome</h3>
+        <p>Invite someone in and show they’re included.</p>
+      </div>
+    </div>
+
+    <div class="gesture-card">
+      <div class="card-top">
+        <img src="assets/gesture-no.png" alt="Gesture No" />
+      </div>
+      <div class="card-body">
+        <p class="gesture-label">Feelings</p>
+        <h3>How are you?</h3>
+        <p>Check in on someone’s state to keep dialogue personal.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+    </main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="site-footer" aria-label="Footer">
+        <div class="foot-meta">
+            <!-- Shortcut to scroll back to the top -->
+            <a class="back-to-top" href="#top" title="Back to top">↑ Top</a>
+        </div>
+
+        <div class="footer-inner">
+            <!-- Footer navigation -->
+            <nav class="foot-nav" aria-label="Footer navigation">
+                <a href="#camera">Camera</a>
+                ｜ <!-- separator -->
+                <a href="#gestures">Gestures</a>
+            </nav>
+        </div>
+
+        <!-- Copyright -->
+        <span class="copy">© <span id="year"></span> Team Helma, Alena, Oleh</span>
+    </footer>
+
+
+    <!-- Main app logic: camera, overlay, transcript, gesture loading -->
+    <script defer src="app.js"></script>
+</body>
+
+</html>
