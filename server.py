@@ -6,7 +6,7 @@ CORS(app)
 
 @app.route("/")
 def home():
-    return render_template("index.html")
+    return render_template("templates/index.html")
 
 @app.route("/infer", methods=["POST"])
 def infer():
