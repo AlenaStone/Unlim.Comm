@@ -1,4 +1,6 @@
 // ================== DOM ==================
+const { FilesetResolver, HandLandmarker } = window;
+
 const els = {
   preview: document.getElementById('preview'),
   overlay: document.getElementById('overlay'),
