@@ -1,5 +1,5 @@
 // ================== DOM ==================
-const { FilesetResolver, HandLandmarker } = window;
+
 
 const els = {
   preview: document.getElementById('preview'),
@@ -20,11 +20,16 @@ const transcript = [];
 
 // ================== MEDIAPIPE INIT ==================
 async function initMediaPipe() {
-  const vision = await FilesetResolver.forVisionTasks(
+  if (!window.FilesetResolver || !window.HandLandmarker) {
+    console.error("❌ MediaPipe not loaded yet", window);
+    return;
+  }
+
+  const vision = await window.FilesetResolver.forVisionTasks(
     "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
   );
 
-  handLandmarker = await HandLandmarker.createFromOptions(vision, {
+  handLandmarker = await window.HandLandmarker.createFromOptions(vision, {
     baseOptions: {
       modelAssetPath:
         "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/latest/hand_landmarker.task"
@@ -35,6 +40,7 @@ async function initMediaPipe() {
 
   console.log("✅ MediaPipe ready");
 }
+
 
 
 initMediaPipe();
