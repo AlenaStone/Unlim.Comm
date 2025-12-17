@@ -189,7 +189,8 @@
     <!-- Main app logic: camera, overlay, transcript, gesture loading -->
 
 
-    <script defer src="../static/app.js"></script>
+   <script type="module" src="{{ url_for('static', filename='app.js') }}"></script>
+
   </body>
 
 </html>
