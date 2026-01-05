@@ -1,22 +1,11 @@
-// ================== DOM ==================
+// ================== IMPORTS ==================
 import {
   FilesetResolver,
   HandLandmarker
 } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest";
 
-
-const els = {
-  preview: document.getElementById('preview'),
-  overlay: document.getElementById('overlay'),
-  btnStart: document.getElementById('btnStart'),
-  btnStop: document.getElementById('btnStop'),
-  fontSize: document.getElementById('fontSize'),
-  toggleOverlay: document.getElementById('toggleOverlay'),
-  transcriptList: document.getElementById('transcriptList'),
-  btnSpeak: document.getElementById('btnSpeak'),
-};
-
 // ================== STATE ==================
+let els = {};
 let mediaStream = null;
 let handLandmarker = null;
 let lastGesture = '';
@@ -41,27 +30,27 @@ async function initMediaPipe() {
   console.log("✅ MediaPipe ready");
 }
 
-
-
-
-initMediaPipe();
-
 // ================== CAMERA ==================
 async function startCamera() {
   if (mediaStream) return;
 
-  mediaStream = await navigator.mediaDevices.getUserMedia({
-    video: { facingMode: 'user' },
-    audio: false
-  });
+  try {
+    mediaStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'user' },
+      audio: false
+    });
 
-  els.preview.srcObject = mediaStream;
-  await els.preview.play();
+    els.preview.srcObject = mediaStream;
+    await els.preview.play();
 
-  els.btnStart.disabled = true;
-  els.btnStop.disabled = false;
+    els.btnStart.disabled = true;
+    els.btnStop.disabled = false;
 
-  startHandDetection();
+    startHandDetection();
+  } catch (err) {
+    console.error('CAMERA ERROR:', err);
+    alert('Camera could not be started');
+  }
 }
 
 function stopCamera() {
@@ -88,7 +77,7 @@ function startHandDetection() {
     const now = performance.now();
     const results = handLandmarker.detectForVideo(video, now);
 
-    if (results.landmarks && results.landmarks.length > 0) {
+    if (results.landmarks?.length) {
       const gesture = detectGesture(results.landmarks[0]);
 
       if (
@@ -108,18 +97,15 @@ function startHandDetection() {
   loop();
 }
 
-// ================== SIMPLE GESTURE LOGIC ==================
+// ================== GESTURE LOGIC ==================
 function detectGesture(hand) {
   const indexUp = hand[8].y < hand[6].y;
   const middleUp = hand[12].y < hand[10].y;
   const ringUp = hand[16].y < hand[14].y;
   const pinkyUp = hand[20].y < hand[18].y;
 
-  const allUp = indexUp && middleUp && ringUp && pinkyUp;
-  const allDown = !indexUp && !middleUp && !ringUp && !pinkyUp;
-
-  if (allUp) return 'hallo';
-  if (allDown) return 'danke';
+  if (indexUp && middleUp && ringUp && pinkyUp) return 'hallo';
+  if (!indexUp && !middleUp && !ringUp && !pinkyUp) return 'danke';
 
   return '';
 }
@@ -128,24 +114,24 @@ function detectGesture(hand) {
 function addSentence(text) {
   transcript.push(text);
   renderTranscript();
-  renderOverlay(text);
+  renderOverlay(getTranscriptWithPunctuation());
 }
 
 function renderTranscript() {
   els.transcriptList.innerHTML = '';
   const p = document.createElement('p');
-  p.textContent = transcript.join(' ');
+  p.textContent = getTranscriptWithPunctuation();
   els.transcriptList.appendChild(p);
 }
 
 function renderOverlay(text) {
   els.overlay.innerHTML = '';
-  if (!els.toggleOverlay.checked) return;
+  if (!els.toggleOverlay.checked || !text) return;
 
   const bubble = document.createElement('div');
   bubble.className = 'subtitle';
   bubble.textContent = text;
-  bubble.style.fontSize = (Number(els.fontSize?.value) || 28) + 'px';
+  bubble.style.fontSize = (Number(els.fontSize.value) || 28) + 'px';
   els.overlay.appendChild(bubble);
 }
 
@@ -153,36 +139,79 @@ function renderOverlay(text) {
 function speakText(text) {
   if (!text || !window.speechSynthesis) return;
 
-  // стопаем предыдущую речь, чтобы не было каши
   window.speechSynthesis.cancel();
 
-  const utterance = new SpeechSynthesisUtterance(text);
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'de-DE';
+  u.rate = 1;
+  u.pitch = 1;
+  u.volume = 1;
 
-  utterance.lang = 'de-DE';       
-  utterance.rate = 1;            
-  utterance.pitch = 1;            
-  utterance.volume = 1;          
-
-  window.speechSynthesis.speak(utterance);
+  window.speechSynthesis.speak(u);
 }
 
-
-
+// ================== TEXT WITH PUNCTUATION ==================
 function getTranscriptWithPunctuation() {
-  const p = document.getElementById('punctuationChoice')?.value || '';
-  return transcript.join(' ') + (p ? p : '');
+  const p = els.punctuationChoice.value || '';
+  return transcript.join(' ') + p;
 }
 
-// ================== UI ==================
-document.addEventListener('DOMContentLoaded', () => {
-  els.btnStart?.addEventListener('click', startCamera);
-  els.btnStop?.addEventListener('click', stopCamera);
-  els.fontSize?.addEventListener('input', () => renderOverlay(lastGesture));
-  els.toggleOverlay?.addEventListener('change', () => renderOverlay(lastGesture));
+// ================== INIT UI ==================
+document.addEventListener('DOMContentLoaded', async () => {
+  console.log('DOM READY');
 
-els.btnSpeak?.addEventListener('click', () => {
-  if (transcript.length === 0) return;
-  speakText(transcript.join(' '));
-});
+  // ---- DOM ELEMENTS ----
+  els = {
+    preview: document.getElementById('preview'),
+    overlay: document.getElementById('overlay'),
+    btnStart: document.getElementById('btnStart'),
+    btnStop: document.getElementById('btnStop'),
+    btnSpeak: document.getElementById('btnSpeak'),
+    fontSize: document.getElementById('fontSize'),
+    toggleOverlay: document.getElementById('toggleOverlay'),
+    transcriptList: document.getElementById('transcriptList'),
+    punctuationChoice: document.getElementById('punctuationChoice'),
+    themeToggle: document.getElementById('themeToggle'),
+  };
 
+  console.log('ELS:', els);
+
+  // ---- BUTTONS ----
+  els.btnStart.addEventListener('click', startCamera);
+  els.btnStop.addEventListener('click', stopCamera);
+
+  els.btnSpeak.addEventListener('click', () => {
+    if (transcript.length) {
+      speakText(getTranscriptWithPunctuation());
+    }
+  });
+
+  els.fontSize.addEventListener('input', () => {
+    renderOverlay(getTranscriptWithPunctuation());
+  });
+
+  els.toggleOverlay.addEventListener('change', () => {
+    renderOverlay(getTranscriptWithPunctuation());
+  });
+
+  // ---- THEME ----
+  const root = document.documentElement;
+  if (localStorage.getItem('theme') === 'light') {
+    root.setAttribute('data-theme', 'light');
+  }
+
+  els.themeToggle.addEventListener('click', () => {
+    const isLight = root.getAttribute('data-theme') === 'light';
+
+    if (isLight) {
+      root.removeAttribute('data-theme');
+      localStorage.removeItem('theme');
+    } else {
+      root.setAttribute('data-theme', 'light');
+      localStorage.setItem('theme', 'light');
+    }
+  });
+
+  // ---- MEDIAPIPE LAST ----
+  await initMediaPipe();
 });
