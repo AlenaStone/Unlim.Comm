@@ -13,6 +13,7 @@ const els = {
   fontSize: document.getElementById('fontSize'),
   toggleOverlay: document.getElementById('toggleOverlay'),
   transcriptList: document.getElementById('transcriptList'),
+  btnSpeak: document.getElementById('btnSpeak'),
 };
 
 // ================== STATE ==================
@@ -148,10 +149,40 @@ function renderOverlay(text) {
   els.overlay.appendChild(bubble);
 }
 
+// ================== TEXT TO SPEECH ==================
+function speakText(text) {
+  if (!text || !window.speechSynthesis) return;
+
+  // стопаем предыдущую речь, чтобы не было каши
+  window.speechSynthesis.cancel();
+
+  const utterance = new SpeechSynthesisUtterance(text);
+
+  utterance.lang = 'de-DE';       
+  utterance.rate = 1;            
+  utterance.pitch = 1;            
+  utterance.volume = 1;          
+
+  window.speechSynthesis.speak(utterance);
+}
+
+
+
+function getTranscriptWithPunctuation() {
+  const p = document.getElementById('punctuationChoice')?.value || '';
+  return transcript.join(' ') + (p ? p : '');
+}
+
 // ================== UI ==================
 document.addEventListener('DOMContentLoaded', () => {
   els.btnStart?.addEventListener('click', startCamera);
   els.btnStop?.addEventListener('click', stopCamera);
   els.fontSize?.addEventListener('input', () => renderOverlay(lastGesture));
   els.toggleOverlay?.addEventListener('change', () => renderOverlay(lastGesture));
+
+els.btnSpeak?.addEventListener('click', () => {
+  if (transcript.length === 0) return;
+  speakText(transcript.join(' '));
+});
+
 });

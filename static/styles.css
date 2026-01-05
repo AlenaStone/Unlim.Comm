@@ -430,6 +430,34 @@ input[type="checkbox"] {
     height: 18px;
 }
 
+.btn-accent {
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    color: #0b0f14;
+    font-weight: 700;
+    border: none;
+    box-shadow:
+        0 6px 18px rgba(125, 211, 252, 0.35),
+        0 0 12px rgba(167, 139, 250, 0.25);
+    transition: transform .12s ease, filter .2s ease, box-shadow .2s ease;
+}
+
+.btn-accent:hover {
+    filter: brightness(1.12);
+    box-shadow:
+        0 8px 24px rgba(125, 211, 252, 0.45),
+        0 0 18px rgba(167, 139, 250, 0.35);
+}
+
+.btn-accent:active {
+    transform: translateY(1px) scale(0.98);
+}
+
+.btn-accent:disabled {
+    opacity: .6;
+    filter: grayscale(.4);
+    cursor: not-allowed;
+}
+
 /* =========================
    GESTURE BOOK
    ========================= */
