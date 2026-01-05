@@ -130,37 +130,40 @@ header {
 
 /* Nav links with animated underline */
 nav ul {
-  list-style: none;
-  display: flex;
-  align-items: center;
-  gap: 0; /* no built-in gap */
-  margin: 0;
-  padding: 0;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    /* no built-in gap */
+    margin: 0;
+    padding: 0;
 }
+
 /* each li spaced manually */
 nav li {
-  display: flex;
-  align-items: center;
+    display: flex;
+    align-items: center;
 }
 
 /* separator injected between items */
-nav li + li::before {
-  content: "|"; /* clean thin bar */
-  color: #7f8cb3;
-  opacity: 0.5;
-  margin: 0 14px;
-  font-weight: 300;
-  transform: translateY(-1px);
+nav li+li::before {
+    content: "|";
+    /* clean thin bar */
+    color: #7f8cb3;
+    opacity: 0.5;
+    margin: 0 14px;
+    font-weight: 300;
+    transform: translateY(-1px);
 }
 
 nav a {
-  position: relative;
-  color: var(--muted);
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 1.5rem;
-  letter-spacing: .3px;
-  transition: color 0.25s ease;
+    position: relative;
+    color: var(--muted);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.5rem;
+    letter-spacing: .3px;
+    transition: color 0.25s ease;
 }
 
 nav a:hover {
@@ -169,20 +172,21 @@ nav a:hover {
 
 /* underline centered & full width of text */
 nav a::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: -6px;
-  width: 0;
-  height: 3px;
-  border-radius: 2px;
-  background: linear-gradient(90deg, #7dd3fc, #a78bfa);
-  transition: width 0.25s ease;
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -6px;
+    width: 0;
+    height: 3px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, #7dd3fc, #a78bfa);
+    transition: width 0.25s ease;
 }
 
 nav a:hover::after,
 nav a[aria-current="page"]::after {
-  width: 100%;                      /* full text width */
+    width: 100%;
+    /* full text width */
 }
 
 nav a[aria-current="page"] {
@@ -436,81 +440,81 @@ input[type="checkbox"] {
    GESTURE BOOK
    ========================= */
 #gestures {
-  padding: 40px 0;
+    padding: 40px 0;
 }
 
 #gestures h2 {
-  color: var(--accent);
-  margin-bottom: 32px;
-  text-shadow: 0 0 20px rgba(125, 211, 252, 0.3);
+    color: var(--accent);
+    margin-bottom: 32px;
+    text-shadow: 0 0 20px rgba(125, 211, 252, 0.3);
 }
 
 /* Responsive grid for gesture cards */
 .gestures-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 32px;
-  width: 100%;
-  padding: 0 24px;
-  justify-items: center;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 32px;
+    width: 100%;
+    padding: 0 24px;
+    justify-items: center;
 }
 
 /* Individual gesture card */
 .gesture-card {
-  background: linear-gradient(180deg, var(--panel-strong), var(--panel));
-  border-radius: 18px;
-  box-shadow: var(--shadow);
-  padding: 0;
-  text-align: center;
-  width: 100%;
-  max-width: 320px;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-  border: 1px solid var(--border);
+    background: linear-gradient(180deg, var(--panel-strong), var(--panel));
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+    padding: 0;
+    text-align: center;
+    width: 100%;
+    max-width: 320px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    border: 1px solid var(--border);
 }
 
 .gesture-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35);
+    transform: translateY(-6px);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35);
 }
 
 /* Gesture image */
 .gesture-card img {
-  width: 100%;
-  height: auto;
-  border-radius: 14px;
-  margin-bottom: 0;
-  box-shadow: 0 0 18px rgba(125, 211, 252, 0.15);
+    width: 100%;
+    height: auto;
+    border-radius: 14px;
+    margin-bottom: 0;
+    box-shadow: 0 0 18px rgba(125, 211, 252, 0.15);
 }
 
 .card-top {
-  padding: 14px 14px 0;
+    padding: 14px 14px 0;
 }
 
 .card-body {
-  padding: 16px 18px 22px;
+    padding: 16px 18px 22px;
 }
 
 .gesture-label {
-  display: inline-block;
-  background: rgba(125, 211, 252, 0.12);
-  color: var(--accent);
-  border-radius: 999px;
-  padding: 4px 10px;
-  font-size: 0.85rem;
-  margin-bottom: 6px;
+    display: inline-block;
+    background: rgba(125, 211, 252, 0.12);
+    color: var(--accent);
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 0.85rem;
+    margin-bottom: 6px;
 }
 
 /* Gesture title and text */
 .gesture-card h3 {
-  color: var(--accent-2);
-  font-size: 1.4rem;
-  margin-bottom: 6px;
+    color: var(--accent-2);
+    font-size: 1.4rem;
+    margin-bottom: 6px;
 }
 
 .gesture-card p {
-  color: var(--muted);
-  font-size: 1rem;
-  line-height: 1.5;
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.5;
 }
 
 /* =========================
@@ -582,7 +586,7 @@ input[type="checkbox"] {
 /* Medium screens: keep columns but reduce gaps a bit */
 @media (min-width: 1024px) and (max-width: 1440px) {
 
-       h2 {
+    h2 {
         font-size: 1.2rem;
     }
 
@@ -599,17 +603,21 @@ input[type="checkbox"] {
     .stage {
         max-height: 72vh;
     }
+
     .copy {
-    font-size: 1.0rem;
-  
-}
-.back-to-top {
-    font-size: 1.2rem;
-}
-.transcript-actions {
-    gap: 5px;
-    margin-left: -120px;
-}
+        font-size: 1.0rem;
+
+    }
+
+    .back-to-top {
+        font-size: 1.2rem;
+    }
+
+    .transcript-actions {
+        gap: 5px;
+        margin-left: -120px;
+    }
+
     .logo img {
         height: 100px;
     }
@@ -621,32 +629,57 @@ input[type="checkbox"] {
         grid-template-columns: 1fr;
     }
 
-    .transcript-col>section {
+    .transcript-col > section {
         position: static;
     }
 
     .stage {
-        aspect-ratio: 16/9;
-        max-height: 60vh;
+        width: 100%;
+        max-width: 100%;
+        margin: 0 auto 14px;
     }
-        h2 {
-        font-size: 1.4rem;
+
+    .transcript-actions {
+        margin-left: 0;
+        justify-content: center;
+    }
+
+    h2 {
+        font-size: 1.2rem;
+    }
+
+    .nav {
+        padding: 0 16px;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+    }
+
+    nav ul {
+        flex-wrap: wrap;
+        justify-content: center;
     }
 
     p,
     label,
     button {
-        font-size: 1.0rem;
+        font-size: 1.05rem;
     }
+
     .logo img {
         height: 100px;
     }
+
+    .theme-toggle {
+        font-size: 0.9rem;
+    }
 }
+
 
 /* Small phones: tighter paddings/fonts */
 @media (max-width: 520px) {
     main {
-        padding: 18px 14px 32px;
+        padding: 16px 12px 28px;
     }
 
     section {
@@ -654,7 +687,7 @@ input[type="checkbox"] {
     }
 
     h2 {
-        font-size: 1.4rem;
+        font-size: 0.5rem;
     }
 
     p,
@@ -664,8 +697,9 @@ input[type="checkbox"] {
     }
 
     .subtitle {
-        font-size: 2rem;
-        padding: 8px 16px;
+        white-space: normal;
+        line-height: 1.3;
+        text-align: center;
     }
 
     input[type="range"] {

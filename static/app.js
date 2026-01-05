@@ -11,6 +11,7 @@ let handLandmarker = null;
 let lastGesture = '';
 let lastGestureTime = 0;
 const transcript = [];
+let currentSentence = [];
 
 // ================== MEDIAPIPE INIT ==================
 async function initMediaPipe() {
@@ -111,10 +112,9 @@ function detectGesture(hand) {
 }
 
 // ================== TRANSCRIPT ==================
-function addSentence(text) {
-  transcript.push(text);
-  renderTranscript();
-  renderOverlay(getTranscriptWithPunctuation());
+function addSentence(word) {
+  currentSentence.push(word);
+  renderOverlay(currentSentence.join(' '));
 }
 
 function renderTranscript() {
@@ -186,13 +186,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  els.fontSize.addEventListener('input', () => {
-    renderOverlay(getTranscriptWithPunctuation());
-  });
+els.fontSize.addEventListener('input', () => {
+  renderOverlay(currentSentence.join(' '));
+});
 
-  els.toggleOverlay.addEventListener('change', () => {
-    renderOverlay(getTranscriptWithPunctuation());
-  });
+els.toggleOverlay.addEventListener('change', () => {
+  if (els.toggleOverlay.checked) {
+    renderOverlay(currentSentence.join(' '));
+  } else {
+    renderOverlay('');
+  }
+});
+    els.punctuationChoice.addEventListener('change', () => {
+  const p = els.punctuationChoice.value;
+  if (!p || currentSentence.length === 0) return;
+
+  const finished = currentSentence.join(' ') + p;
+  transcript.push(finished);
+
+  currentSentence = [];
+  renderTranscript();
+  renderOverlay('');
+   els.punctuationChoice.value = '';
+});
 
   // ---- THEME ----
   const root = document.documentElement;
