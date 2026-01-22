@@ -11,9 +11,9 @@ let handLandmarker = null;
 let lastGesture = '';
 let lastGestureTime = 0;
 const transcript = [];
-let currentSentence = [];
+let currentSentence = []; // Buffer for RAW words
 
-// Mapping: Gesture ID -> Display Word
+// Mapping: Gesture Key -> Display Word
 const DISPLAY_WORDS = {
   hello: "hello",
   this: "this",
@@ -91,7 +91,7 @@ function startHandDetection() {
     if (results.landmarks?.length) {
       const gesture = detectGesture(results.landmarks[0]);
 
-      // Delay to prevent flickering (800ms)
+      // Debounce: 800ms delay to prevent flickering
       if (
         gesture &&
         gesture !== lastGesture &&
@@ -100,7 +100,7 @@ function startHandDetection() {
         lastGesture = gesture;
         lastGestureTime = now;
         
-        // ✨ AUTO-TRIGGER: Add word AND update screen immediately
+        // Add word to temporary buffer
         addWordToBuffer(gesture);
       }
     }
@@ -113,21 +113,19 @@ function startHandDetection() {
 
 // ================== GESTURE RECOGNITION ==================
 function detectGesture(hand) {
-  // Y coordinate: Lower value = Higher on screen
-  // 4=Thumb, 8=Index, 12=Middle, 16=Ring, 20=Pinky
-  
+  // Check finger states
   const thumbUp  = hand[4].y < hand[3].y;
   const indexUp  = hand[8].y < hand[6].y;
   const middleUp = hand[12].y < hand[10].y;
   const ringUp   = hand[16].y < hand[14].y;
   const pinkyUp  = hand[20].y < hand[18].y;
 
-  // 1. HELLO (Open Hand)
+  // 1. HELLO (Open Palm)
   if (thumbUp && indexUp && middleUp && ringUp && pinkyUp) {
     return 'hello';
   }
 
-  // 2. THIS (Index Only)
+  // 2. THIS (Index Finger)
   if (indexUp && !middleUp && !ringUp && !pinkyUp) {
     return 'this';
   }
@@ -142,12 +140,12 @@ function detectGesture(hand) {
     return 'made';
   }
 
-  // 5. PROGRAM (Victory/Peace Sign)
+  // 5. PROGRAM (Victory Sign)
   if (indexUp && middleUp && !ringUp && !pinkyUp) {
     return 'program';
   }
 
-  // 6. THANK YOU (Shaka/Phone)
+  // 6. THANK YOU (Shaka / Phone)
   if (thumbUp && !indexUp && !middleUp && !ringUp && pinkyUp) {
     return 'thank_you';
   }
@@ -155,41 +153,50 @@ function detectGesture(hand) {
   return '';
 }
 
-// ================== DATA HANDLING (UPDATED) ==================
+// ================== BUFFER HANDLER ==================
 function addWordToBuffer(gestureKey) {
   const word = DISPLAY_WORDS[gestureKey] || gestureKey;
+  
+  // Add raw word to buffer
   currentSentence.push(word);
 
-  // 1. Get the raw text (e.g., "we made")
-  const rawText = currentSentence.join(' ');
-  
-  // 2. Check if it matches a SMART phrase
-  const smartText = refineSentence(currentSentence);
-
-  // 3. Update Overlay IMMEDIATELY (Autofill)
-  renderOverlay(smartText);
-
-  // 4. If the smart text is a full sentence (ends with . or !), 
-  // automatically log it to transcript so we can start fresh?
-  // OPTIONAL: Uncomment below if you want auto-clear after sentence
-  /* if (smartText.length > 20 && (smartText.includes('!') || smartText.includes('.'))) {
-     transcript.push(smartText);
-     renderTranscript();
-     // Keep buffer until manual clear? Or clear? 
-     // Let's keep it manual clear for safety during demo.
-  } 
-  */
+  // Show raw words on overlay (Draft mode)
+  // e.g., "we made program"
+  renderOverlay(currentSentence.join(' '));
 }
 
+// ================== SEND BUTTON LOGIC (THE MAGIC) ==================
+function handleSend() {
+    if (currentSentence.length === 0) return;
+
+    // 1. Convert raw words to a smart sentence
+    const smartSentence = refineSentence(currentSentence);
+
+    // 2. Add to the transcript list
+    transcript.push(smartSentence);
+    renderTranscript();
+
+    // 3. Speak the result
+    speakText(smartSentence);
+
+    // 4. Clear the overlay for the next phrase
+    currentSentence = [];
+    renderOverlay('');
+}
+
+// ================== UI RENDERERS ==================
 function renderTranscript() {
   els.transcriptList.innerHTML = '';
   
   transcript.forEach(line => {
     const p = document.createElement('p');
     p.textContent = line;
+    p.style.borderBottom = "1px solid #333";
+    p.style.padding = "8px 0";
     els.transcriptList.appendChild(p);
   });
   
+  // Auto-scroll to bottom
   els.transcriptList.scrollTop = els.transcriptList.scrollHeight;
 }
 
@@ -201,32 +208,25 @@ function renderOverlay(text) {
   bubble.className = 'subtitle';
   bubble.textContent = text;
   
-  // === CSS FIX FOR LONG TEXT ===
-  // This ensures the text wraps and doesn't show "..."
+  // Overlay Styles
   bubble.style.whiteSpace = "pre-wrap"; 
   bubble.style.wordWrap = "break-word";
   bubble.style.width = "90%";
-  bubble.style.maxWidth = "600px";
-  bubble.style.lineHeight = "1.3";
   bubble.style.textAlign = "center";
   bubble.style.padding = "10px";
-  bubble.style.background = "rgba(0, 0, 0, 0.6)"; // Dark background for readability
+  bubble.style.background = "rgba(0, 0, 0, 0.6)"; 
   bubble.style.borderRadius = "12px";
   bubble.style.margin = "0 auto";
 
-  // Dynamic font size: smaller if text is long
   let size = Number(els.fontSize.value) || 28;
-  if (text.length > 30) size = Math.max(16, size * 0.7); // Shrink for long sentences
-  
+  if (text.length > 25) size = Math.max(18, size * 0.8);
   bubble.style.fontSize = size + 'px';
   
   els.overlay.appendChild(bubble);
 }
 
-// ================== SPEECH SYNTHESIS ==================
 function speakText(text) {
   if (!text || !window.speechSynthesis) return;
-
   window.speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
   u.lang = 'en-US'; 
@@ -234,43 +234,37 @@ function speakText(text) {
   window.speechSynthesis.speak(u);
 }
 
-// ================== SMART SENTENCE BUILDER ==================
+// ================== SMART LOGIC (AI MOCKUP) ==================
 function refineSentence(wordsArray) {
   const rawText = wordsArray.join(' ').toLowerCase();
 
-  // === SCENARIO 1: HELLO ===
-  // Trigger: Just "hello" is enough to expand
+  // SCENARIO 1: GREETING
   if (rawText.includes('hello')) {
     return "Hello everyone! Welcome to our project.";
   }
 
-  // === SCENARIO 2: THE PITCH ===
-  // Trigger: "we made" OR "we made program" OR "this program"
+  // SCENARIO 2: PITCH (WE + MADE + PROGRAM)
   if (
     (rawText.includes('we') && rawText.includes('made')) ||
-    (rawText.includes('program') && rawText.includes('this'))
+    (rawText.includes('program'))
   ) {
     return "We developed this software to help mute people communicate efficiently.";
   }
 
-  // === SCENARIO 3: THANK YOU ===
-  // Trigger: "thank_you"
+  // SCENARIO 3: CLOSING (THANK YOU)
   if (rawText.includes('thank')) {
     return "Thank you very much for your attention!";
   }
 
-  // === FALLBACK: RAW WORDS ===
-  // If no smart match yet, just show what we have (e.g. "We made")
-  // Capitalize first letter
+  // FALLBACK
   const simple = wordsArray.join(' ');
-  return simple.charAt(0).toUpperCase() + simple.slice(1);
+  return simple.charAt(0).toUpperCase() + simple.slice(1) + ".";
 }
 
-// ================== UI INITIALIZATION ==================
+// ================== INITIALIZATION ==================
 document.addEventListener('DOMContentLoaded', async () => {
   console.log('DOM READY');
 
-  // 1. Get Elements
   els = {
     preview: document.getElementById('preview'),
     overlay: document.getElementById('overlay'),
@@ -278,7 +272,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Buttons
     btnStart: document.getElementById('btnStart'),
     btnStop: document.getElementById('btnStop'),
-    btnSpeak: document.getElementById('btnSpeak'),
+    btnSend: document.getElementById('btnSend'), // Main Action Button
+    
+    // Transcript Actions
+    btnSpeak: document.getElementById('btnSpeak'), 
     btnUndo: document.getElementById('btnUndo'),
     btnClear: document.getElementById('btnClear'),
     btnCopy: document.getElementById('btnCopy'),
@@ -291,36 +288,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     themeToggle: document.getElementById('themeToggle'),
   };
 
-  // 2. Camera Listeners
+  // Event Listeners
   els.btnStart.addEventListener('click', startCamera);
   els.btnStop.addEventListener('click', stopCamera);
 
-  // 3. Speak Button (Optional now, since text shows automatically)
+  // === MAIN SEND BUTTON ===
+  if (els.btnSend) {
+      els.btnSend.addEventListener('click', handleSend);
+  }
+
+  // Re-speak from transcript
   if (els.btnSpeak) {
     els.btnSpeak.addEventListener('click', () => {
-      // Speak whatever is currently on screen
-      const textToSpeak = els.overlay.textContent; // Get text directly from overlay
-      
-      if (textToSpeak) {
-        speakText(textToSpeak);
-        // Log to transcript when spoken
-        transcript.push(textToSpeak);
-        renderTranscript();
-        
-        // Optional: clear after speaking?
-        // currentSentence = []; 
-        // renderOverlay('');
-      }
+       const text = els.transcriptList.lastElementChild?.textContent;
+       if (text) speakText(text);
     });
   }
 
-  // 4. Edit Buttons
+  // Undo / Clear Logic
   if (els.btnUndo) {
     els.btnUndo.addEventListener('click', () => {
       currentSentence.pop();
-      // Recalculate overlay immediately
-      const newText = refineSentence(currentSentence);
-      renderOverlay(newText);
+      renderOverlay(currentSentence.join(' '));
     });
   }
 
@@ -331,55 +320,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  if (els.btnCopy) {
-    els.btnCopy.addEventListener('click', () => {
-      const textToCopy = Array.from(els.transcriptList.querySelectorAll('p'))
-          .map(p => p.textContent)
-          .join('\n');
-      
-      if (textToCopy) {
-        navigator.clipboard.writeText(textToCopy)
-          .then(() => alert('Copied!'))
-          .catch(err => console.error(err));
-      }
-    });
-  }
-
-  // 5. Visual Settings
+  // Visual Settings
   els.fontSize.addEventListener('input', () => {
-    // Refresh overlay with new size
-    const smartText = refineSentence(currentSentence);
-    renderOverlay(smartText);
+    renderOverlay(currentSentence.join(' '));
   });
-
+  
   els.toggleOverlay.addEventListener('change', () => {
-    const smartText = refineSentence(currentSentence);
-    if (els.toggleOverlay.checked) {
-      renderOverlay(smartText);
-    } else {
-      renderOverlay('');
-    }
+    if (els.toggleOverlay.checked) renderOverlay(currentSentence.join(' '));
+    else renderOverlay('');
   });
 
-  // 6. Theme
-  const root = document.documentElement;
-  if (localStorage.getItem('theme') === 'light') {
-    root.setAttribute('data-theme', 'light');
-  }
-
-  if (els.themeToggle) {
-    els.themeToggle.addEventListener('click', () => {
-      const isLight = root.getAttribute('data-theme') === 'light';
-      if (isLight) {
-        root.removeAttribute('data-theme');
-        localStorage.removeItem('theme');
-      } else {
-        root.setAttribute('data-theme', 'light');
-        localStorage.setItem('theme', 'light');
-      }
-    });
-  }
-
-  // 7. Init AI
+  // Start System
   await initMediaPipe();
 });
