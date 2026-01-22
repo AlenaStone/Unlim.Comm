@@ -13,7 +13,7 @@ let lastGestureTime = 0;
 const transcript = [];
 let currentSentence = [];
 
-// Mapping: Internal Gesture ID -> Display Word
+// Mapping: Gesture ID -> Display Word
 const DISPLAY_WORDS = {
   hello: "hello",
   this: "this",
@@ -91,7 +91,7 @@ function startHandDetection() {
     if (results.landmarks?.length) {
       const gesture = detectGesture(results.landmarks[0]);
 
-      // Debounce logic: prevent flickering (800ms delay)
+      // Delay to prevent flickering (800ms)
       if (
         gesture &&
         gesture !== lastGesture &&
@@ -99,6 +99,8 @@ function startHandDetection() {
       ) {
         lastGesture = gesture;
         lastGestureTime = now;
+        
+        // ✨ AUTO-TRIGGER: Add word AND update screen immediately
         addWordToBuffer(gesture);
       }
     }
@@ -111,7 +113,7 @@ function startHandDetection() {
 
 // ================== GESTURE RECOGNITION ==================
 function detectGesture(hand) {
-  // Y coordinate: Lower value means higher on screen (Tip < Base = Finger Up)
+  // Y coordinate: Lower value = Higher on screen
   // 4=Thumb, 8=Index, 12=Middle, 16=Ring, 20=Pinky
   
   const thumbUp  = hand[4].y < hand[3].y;
@@ -120,38 +122,32 @@ function detectGesture(hand) {
   const ringUp   = hand[16].y < hand[14].y;
   const pinkyUp  = hand[20].y < hand[18].y;
 
-  // 1. Open Hand -> HELLO
-  // All fingers up
+  // 1. HELLO (Open Hand)
   if (thumbUp && indexUp && middleUp && ringUp && pinkyUp) {
     return 'hello';
   }
 
-  // 2. Index Finger -> THIS / POINTER
-  // Only Index up
+  // 2. THIS (Index Only)
   if (indexUp && !middleUp && !ringUp && !pinkyUp) {
     return 'this';
   }
 
-  // 3. Fist -> WE
-  // All fingers down
+  // 3. WE (Fist)
   if (!indexUp && !middleUp && !ringUp && !pinkyUp) {
     return 'we';
   }
 
-  // 4. Thumb Up -> MADE / GOOD
-  // Only Thumb up
+  // 4. MADE (Thumb Up)
   if (thumbUp && !indexUp && !middleUp && !ringUp && !pinkyUp) {
     return 'made';
   }
 
-  // 5. Victory Sign -> PROGRAM
-  // Index & Middle up
+  // 5. PROGRAM (Victory/Peace Sign)
   if (indexUp && middleUp && !ringUp && !pinkyUp) {
     return 'program';
   }
 
-  // 6. Shaka / Phone -> THANK YOU
-  // Thumb & Pinky up
+  // 6. THANK YOU (Shaka/Phone)
   if (thumbUp && !indexUp && !middleUp && !ringUp && pinkyUp) {
     return 'thank_you';
   }
@@ -159,11 +155,30 @@ function detectGesture(hand) {
   return '';
 }
 
-// ================== DATA HANDLING ==================
+// ================== DATA HANDLING (UPDATED) ==================
 function addWordToBuffer(gestureKey) {
   const word = DISPLAY_WORDS[gestureKey] || gestureKey;
   currentSentence.push(word);
-  renderOverlay(currentSentence.join(' '));
+
+  // 1. Get the raw text (e.g., "we made")
+  const rawText = currentSentence.join(' ');
+  
+  // 2. Check if it matches a SMART phrase
+  const smartText = refineSentence(currentSentence);
+
+  // 3. Update Overlay IMMEDIATELY (Autofill)
+  renderOverlay(smartText);
+
+  // 4. If the smart text is a full sentence (ends with . or !), 
+  // automatically log it to transcript so we can start fresh?
+  // OPTIONAL: Uncomment below if you want auto-clear after sentence
+  /* if (smartText.length > 20 && (smartText.includes('!') || smartText.includes('.'))) {
+     transcript.push(smartText);
+     renderTranscript();
+     // Keep buffer until manual clear? Or clear? 
+     // Let's keep it manual clear for safety during demo.
+  } 
+  */
 }
 
 function renderTranscript() {
@@ -175,7 +190,6 @@ function renderTranscript() {
     els.transcriptList.appendChild(p);
   });
   
-  // Auto-scroll to bottom
   els.transcriptList.scrollTop = els.transcriptList.scrollHeight;
 }
 
@@ -187,7 +201,23 @@ function renderOverlay(text) {
   bubble.className = 'subtitle';
   bubble.textContent = text;
   
-  const size = Number(els.fontSize.value) || 28;
+  // === CSS FIX FOR LONG TEXT ===
+  // This ensures the text wraps and doesn't show "..."
+  bubble.style.whiteSpace = "pre-wrap"; 
+  bubble.style.wordWrap = "break-word";
+  bubble.style.width = "90%";
+  bubble.style.maxWidth = "600px";
+  bubble.style.lineHeight = "1.3";
+  bubble.style.textAlign = "center";
+  bubble.style.padding = "10px";
+  bubble.style.background = "rgba(0, 0, 0, 0.6)"; // Dark background for readability
+  bubble.style.borderRadius = "12px";
+  bubble.style.margin = "0 auto";
+
+  // Dynamic font size: smaller if text is long
+  let size = Number(els.fontSize.value) || 28;
+  if (text.length > 30) size = Math.max(16, size * 0.7); // Shrink for long sentences
+  
   bubble.style.fontSize = size + 'px';
   
   els.overlay.appendChild(bubble);
@@ -199,7 +229,7 @@ function speakText(text) {
 
   window.speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'en-US'; // English for the demo
+  u.lang = 'en-US'; 
   u.rate = 1;
   window.speechSynthesis.speak(u);
 }
@@ -208,14 +238,14 @@ function speakText(text) {
 function refineSentence(wordsArray) {
   const rawText = wordsArray.join(' ').toLowerCase();
 
-  // Scenario 1: Greeting
-  // Input: "hello"
+  // === SCENARIO 1: HELLO ===
+  // Trigger: Just "hello" is enough to expand
   if (rawText.includes('hello')) {
-    return "Hello everyone! Welcome to our project presentation.";
+    return "Hello everyone! Welcome to our project.";
   }
 
-  // Scenario 2: Main Pitch
-  // Input: "we" + "made" + "program" OR "this" + "program"
+  // === SCENARIO 2: THE PITCH ===
+  // Trigger: "we made" OR "we made program" OR "this program"
   if (
     (rawText.includes('we') && rawText.includes('made')) ||
     (rawText.includes('program') && rawText.includes('this'))
@@ -223,16 +253,17 @@ function refineSentence(wordsArray) {
     return "We developed this software to help mute people communicate efficiently.";
   }
 
-  // Scenario 3: Closing
-  // Input: "thank you"
-  if (rawText.includes('thank') || rawText.includes('made')) {
-     // Fallback: if they just show thumb up at the end, treat as thank you
+  // === SCENARIO 3: THANK YOU ===
+  // Trigger: "thank_you"
+  if (rawText.includes('thank')) {
     return "Thank you very much for your attention!";
   }
 
-  // Fallback: Simple capitalization
+  // === FALLBACK: RAW WORDS ===
+  // If no smart match yet, just show what we have (e.g. "We made")
+  // Capitalize first letter
   const simple = wordsArray.join(' ');
-  return simple.charAt(0).toUpperCase() + simple.slice(1) + ".";
+  return simple.charAt(0).toUpperCase() + simple.slice(1);
 }
 
 // ================== UI INITIALIZATION ==================
@@ -244,11 +275,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     preview: document.getElementById('preview'),
     overlay: document.getElementById('overlay'),
     
-    // Control Buttons
+    // Buttons
     btnStart: document.getElementById('btnStart'),
     btnStop: document.getElementById('btnStop'),
-    
-    // Action Buttons
     btnSpeak: document.getElementById('btnSpeak'),
     btnUndo: document.getElementById('btnUndo'),
     btnClear: document.getElementById('btnClear'),
@@ -266,33 +295,35 @@ document.addEventListener('DOMContentLoaded', async () => {
   els.btnStart.addEventListener('click', startCamera);
   els.btnStop.addEventListener('click', stopCamera);
 
-  // 3. Speak Button (The Magic)
+  // 3. Speak Button (Optional now, since text shows automatically)
   if (els.btnSpeak) {
     els.btnSpeak.addEventListener('click', () => {
-      if (currentSentence.length === 0) return;
-
-      const finalPhrase = refineSentence(currentSentence);
-
-      renderOverlay(finalPhrase);
-      transcript.push(finalPhrase);
-      renderTranscript();
-      speakText(finalPhrase);
-
-      currentSentence = [];
+      // Speak whatever is currently on screen
+      const textToSpeak = els.overlay.textContent; // Get text directly from overlay
+      
+      if (textToSpeak) {
+        speakText(textToSpeak);
+        // Log to transcript when spoken
+        transcript.push(textToSpeak);
+        renderTranscript();
+        
+        // Optional: clear after speaking?
+        // currentSentence = []; 
+        // renderOverlay('');
+      }
     });
   }
 
-  // 4. Edit Buttons (Undo / Clear / Copy)
-  
-  // Undo: Remove last word
+  // 4. Edit Buttons
   if (els.btnUndo) {
     els.btnUndo.addEventListener('click', () => {
       currentSentence.pop();
-      renderOverlay(currentSentence.join(' '));
+      // Recalculate overlay immediately
+      const newText = refineSentence(currentSentence);
+      renderOverlay(newText);
     });
   }
 
-  // Clear: Reset current buffer
   if (els.btnClear) {
     els.btnClear.addEventListener('click', () => {
       currentSentence = [];
@@ -300,7 +331,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Copy: Copy transcript to clipboard
   if (els.btnCopy) {
     els.btnCopy.addEventListener('click', () => {
       const textToCopy = Array.from(els.transcriptList.querySelectorAll('p'))
@@ -309,26 +339,29 @@ document.addEventListener('DOMContentLoaded', async () => {
       
       if (textToCopy) {
         navigator.clipboard.writeText(textToCopy)
-          .then(() => alert('Transcript copied!'))
-          .catch(err => console.error('Copy failed', err));
+          .then(() => alert('Copied!'))
+          .catch(err => console.error(err));
       }
     });
   }
 
   // 5. Visual Settings
   els.fontSize.addEventListener('input', () => {
-    renderOverlay(currentSentence.join(' '));
+    // Refresh overlay with new size
+    const smartText = refineSentence(currentSentence);
+    renderOverlay(smartText);
   });
 
   els.toggleOverlay.addEventListener('change', () => {
+    const smartText = refineSentence(currentSentence);
     if (els.toggleOverlay.checked) {
-      renderOverlay(currentSentence.join(' '));
+      renderOverlay(smartText);
     } else {
       renderOverlay('');
     }
   });
 
-  // 6. Theme Toggle
+  // 6. Theme
   const root = document.documentElement;
   if (localStorage.getItem('theme') === 'light') {
     root.setAttribute('data-theme', 'light');
@@ -347,6 +380,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // 7. Start MediaPipe
+  // 7. Init AI
   await initMediaPipe();
 });
