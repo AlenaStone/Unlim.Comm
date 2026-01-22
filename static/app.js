@@ -221,7 +221,7 @@ function renderOverlay(text) {
 
   let size = Number(els.fontSize.value) || 28;
   if (text.length > 25) size = Math.max(18, size * 0.8);
-  bubble.style.fontSize = size + 'px';ы
+  bubble.style.fontSize = size + 'px'; // <--- ИСПРАВИЛ ОШИБКУ ТУТ (БЫЛА БУКВА ы)
   
   els.overlay.appendChild(bubble);
 }
@@ -239,12 +239,12 @@ function speakText(text) {
 function refineSentence(wordsArray) {
   const rawText = wordsArray.join(' ').toLowerCase();
 
-  // Scenario 1: Greeting (Hello + All)
+  // Scenario 1: Greeting
   if (rawText.includes('hello')) {
     return "Hello everyone! Welcome to our project.";
   }
 
-  // Scenario 2: Pitch (We + Made)
+  // Scenario 2: Pitch
   if (
     (rawText.includes('we') && rawText.includes('made')) ||
     (rawText.includes('program'))
@@ -252,7 +252,7 @@ function refineSentence(wordsArray) {
     return "We developed this software to help mute people communicate efficiently.";
   }
 
-  // Scenario 3: Closing (Thank you)
+  // Scenario 3: Closing
   if (rawText.includes('thank')) {
     return "Thank you very much for your attention!";
   }
@@ -274,7 +274,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     btnStart: document.getElementById('btnStart'),
     btnStop: document.getElementById('btnStop'),
     btnSend: document.getElementById('btnSend'),
-    toggleVoice: document.getElementById('toggleVoice'), // NEW TOGGLE
+    toggleVoice: document.getElementById('toggleVoice'),
     
     // Transcript Actions
     btnSpeak: document.getElementById('btnSpeak'), 
@@ -298,6 +298,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       els.btnSend.addEventListener('click', handleSend);
   }
 
+  // Re-speak
   if (els.btnSpeak) {
     els.btnSpeak.addEventListener('click', () => {
        const text = els.transcriptList.lastElementChild?.textContent;
@@ -305,6 +306,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  // Undo
   if (els.btnUndo) {
     els.btnUndo.addEventListener('click', () => {
       currentSentence.pop();
@@ -312,6 +314,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  // Clear
   if (els.btnClear) {
     els.btnClear.addEventListener('click', () => {
       currentSentence = [];
@@ -319,6 +322,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
   
+  // Copy
   if (els.btnCopy) {
       els.btnCopy.addEventListener('click', () => {
         const textToCopy = Array.from(els.transcriptList.querySelectorAll('p'))
@@ -333,6 +337,27 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
   }
 
+  // Theme Toggle (ВОТ ЭТО ТЫ ПОТЕРЯЛА)
+  const root = document.documentElement;
+  // Restore theme on load
+  if (localStorage.getItem('theme') === 'light') {
+    root.setAttribute('data-theme', 'light');
+  }
+
+  if (els.themeToggle) {
+    els.themeToggle.addEventListener('click', () => {
+      const isLight = root.getAttribute('data-theme') === 'light';
+      if (isLight) {
+        root.removeAttribute('data-theme');
+        localStorage.removeItem('theme');
+      } else {
+        root.setAttribute('data-theme', 'light');
+        localStorage.setItem('theme', 'light');
+      }
+    });
+  }
+
+  // UI Settings
   els.fontSize.addEventListener('input', () => {
     renderOverlay(currentSentence.join(' '));
   });
