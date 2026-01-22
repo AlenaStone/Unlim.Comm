@@ -13,6 +13,23 @@ let lastGestureTime = 0;
 const transcript = [];
 let currentSentence = [];
 
+const DISPLAY_WORDS = {
+  all: "zusammen",
+  hello: "Hallo",
+  welcome: "Willkommen",
+  this: "Dieses",
+  program: "Programm",
+  for: "für",
+  deaf: "Gehörlose",
+  we: "Wir",
+  made: "haben gemacht",
+  basic: "Basis",
+  set: "Set",
+  gestures: "Gesten",
+  thank_you: "Vielen Dank",
+  bye: "Tschüss"
+};
+
 // ================== MEDIAPIPE INIT ==================
 async function initMediaPipe() {
   const vision = await FilesetResolver.forVisionTasks(
@@ -100,25 +117,28 @@ function startHandDetection() {
 
 // ================== GESTURE LOGIC ==================
 function detectGesture(hand) {
+  const thumbUp  = hand[4].y  < hand[3].y;
   const indexUp  = hand[8].y  < hand[6].y;
   const middleUp = hand[12].y < hand[10].y;
   const ringUp   = hand[16].y < hand[14].y;
   const pinkyUp  = hand[20].y < hand[18].y;
 
-  // --- BASIC WORDS ---
+  // ================= GREETINGS =================
 
-  // hello / all  → open hand
-  if (indexUp && middleUp && ringUp && pinkyUp) {
+  // hello / all → open hand
+  if (indexUp && middleUp && ringUp && pinkyUp && !thumbUp) {
     return 'hello';
   }
 
-  // thank_you → fist
-  if (!indexUp && !middleUp && !ringUp && !pinkyUp) {
-    return 'thank_you';
+  // welcome → open hand + thumb
+  if (thumbUp && indexUp && middleUp && ringUp && pinkyUp) {
+    return 'welcome';
   }
 
+  // ================= CORE WORDS =================
+
   // this → index finger
-  if (indexUp && !middleUp && !ringUp && !pinkyUp) {
+  if (indexUp && !middleUp && !ringUp && !pinkyUp && !thumbUp) {
     return 'this';
   }
 
@@ -132,9 +152,43 @@ function detectGesture(hand) {
     return 'program';
   }
 
-  // help → thumb approximation (ладонь + движение не используем)
-  if (!indexUp && middleUp && ringUp && pinkyUp) {
-    return 'help';
+  // for → index + pinky
+  if (indexUp && !middleUp && !ringUp && pinkyUp) {
+    return 'for';
+  }
+
+  // deaf → ring finger only
+  if (!indexUp && !middleUp && ringUp && !pinkyUp) {
+    return 'deaf';
+  }
+
+  // ================= ACTION WORDS =================
+
+  // made → thumbs up only
+  if (thumbUp && !indexUp && !middleUp && !ringUp && !pinkyUp) {
+    return 'made';
+  }
+
+  // basic → middle + ring
+  if (!indexUp && middleUp && ringUp && !pinkyUp) {
+    return 'basic';
+  }
+
+  // set → index + ring
+  if (indexUp && !middleUp && ringUp && !pinkyUp) {
+    return 'set';
+  }
+
+  // gestures → index + middle + pinky
+  if (indexUp && middleUp && !ringUp && pinkyUp) {
+    return 'gestures';
+  }
+
+  // ================= END WORDS =================
+
+  // thank_you → fist
+  if (!thumbUp && !indexUp && !middleUp && !ringUp && !pinkyUp) {
+    return 'thank_you';
   }
 
   // bye → pinky only
@@ -148,9 +202,11 @@ function detectGesture(hand) {
 
 // ================== TRANSCRIPT ==================
 function addSentence(word) {
-  currentSentence.push(word);
+  const displayWord = DISPLAY_WORDS[word] || word;
+  currentSentence.push(displayWord);
   renderOverlay(currentSentence.join(' '));
 }
+
 
 function renderTranscript() {
   els.transcriptList.innerHTML = '';
