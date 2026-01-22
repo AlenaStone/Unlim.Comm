@@ -14,13 +14,15 @@ const transcript = [];
 let currentSentence = []; // Buffer for RAW words
 
 // Mapping: Gesture Key -> Display Word
+// Mapping: Gesture Key -> Display Word
 const DISPLAY_WORDS = {
   hello: "hello",
   this: "this",
   program: "program",
   we: "we",
   made: "made",
-  thank_you: "thank you"
+  thank_you: "thank you",
+  all: "everyone"  // <--- ДОБАВИЛ: Жест 'all' покажет слово 'everyone'
 };
 
 // ================== MEDIAPIPE INIT ==================
@@ -112,40 +114,53 @@ function startHandDetection() {
 }
 
 // ================== GESTURE RECOGNITION ==================
+// ================== GESTURE RECOGNITION (FIXED) ==================
 function detectGesture(hand) {
-  // Check finger states
+  // Y coordinates: Lower value = Higher on screen
   const thumbUp  = hand[4].y < hand[3].y;
   const indexUp  = hand[8].y < hand[6].y;
   const middleUp = hand[12].y < hand[10].y;
   const ringUp   = hand[16].y < hand[14].y;
   const pinkyUp  = hand[20].y < hand[18].y;
 
-  // 1. HELLO (Open Palm)
+  // 1. HELLO (Open Palm) 🖐
+  // All fingers UP
   if (thumbUp && indexUp && middleUp && ringUp && pinkyUp) {
     return 'hello';
   }
 
-  // 2. THIS (Index Finger)
-  if (indexUp && !middleUp && !ringUp && !pinkyUp) {
+  // 2. ALL / EVERYONE (Rock / Horns) 🤘
+  // Index & Pinky UP, others DOWN
+  if (indexUp && pinkyUp && !middleUp && !ringUp) {
+    return 'all';
+  }
+
+  // 3. THIS (Index Finger Only) ☝️
+  // Index UP, Thumb & others DOWN (Strict check on thumb!)
+  if (indexUp && !thumbUp && !middleUp && !ringUp && !pinkyUp) {
     return 'this';
   }
 
-  // 3. WE (Fist)
+  // 4. MADE (L-Shape / Gun) 👆+👍 <--- CHANGED THIS
+  // Thumb & Index UP, others DOWN
+  if (thumbUp && indexUp && !middleUp && !ringUp && !pinkyUp) {
+    return 'made';
+  }
+
+  // 5. WE (Fist) ✊
+  // All fingers DOWN
   if (!indexUp && !middleUp && !ringUp && !pinkyUp) {
     return 'we';
   }
 
-  // 4. MADE (Thumb Up)
-  if (thumbUp && !indexUp && !middleUp && !ringUp && !pinkyUp) {
-    return 'made';
-  }
-
-  // 5. PROGRAM (Victory Sign)
+  // 6. PROGRAM (Victory Sign) ✌️
+  // Index & Middle UP
   if (indexUp && middleUp && !ringUp && !pinkyUp) {
     return 'program';
   }
 
-  // 6. THANK YOU (Shaka / Phone)
+  // 7. THANK YOU (Shaka / Phone) 🤙
+  // Thumb & Pinky UP
   if (thumbUp && !indexUp && !middleUp && !ringUp && pinkyUp) {
     return 'thank_you';
   }
