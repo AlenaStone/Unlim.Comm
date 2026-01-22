@@ -100,16 +100,51 @@ function startHandDetection() {
 
 // ================== GESTURE LOGIC ==================
 function detectGesture(hand) {
-  const indexUp = hand[8].y < hand[6].y;
+  const indexUp  = hand[8].y  < hand[6].y;
   const middleUp = hand[12].y < hand[10].y;
-  const ringUp = hand[16].y < hand[14].y;
-  const pinkyUp = hand[20].y < hand[18].y;
+  const ringUp   = hand[16].y < hand[14].y;
+  const pinkyUp  = hand[20].y < hand[18].y;
 
-  if (indexUp && middleUp && ringUp && pinkyUp) return 'hallo';
-  if (!indexUp && !middleUp && !ringUp && !pinkyUp) return 'danke';
+  // --- BASIC WORDS ---
+
+  // hello / all  → open hand
+  if (indexUp && middleUp && ringUp && pinkyUp) {
+    return 'hello';
+  }
+
+  // thank_you → fist
+  if (!indexUp && !middleUp && !ringUp && !pinkyUp) {
+    return 'thank_you';
+  }
+
+  // this → index finger
+  if (indexUp && !middleUp && !ringUp && !pinkyUp) {
+    return 'this';
+  }
+
+  // we / three → index + middle
+  if (indexUp && middleUp && !ringUp && !pinkyUp) {
+    return 'we';
+  }
+
+  // program → index + middle + ring
+  if (indexUp && middleUp && ringUp && !pinkyUp) {
+    return 'program';
+  }
+
+  // help → thumb approximation (ладонь + движение не используем)
+  if (!indexUp && middleUp && ringUp && pinkyUp) {
+    return 'help';
+  }
+
+  // bye → pinky only
+  if (!indexUp && !middleUp && !ringUp && pinkyUp) {
+    return 'bye';
+  }
 
   return '';
 }
+
 
 // ================== TRANSCRIPT ==================
 function addSentence(word) {
