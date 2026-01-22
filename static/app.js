@@ -14,21 +14,22 @@ const transcript = [];
 let currentSentence = [];
 
 const DISPLAY_WORDS = {
-  all: "zusammen",
-  hello: "Hallo",
-  welcome: "Willkommen",
-  this: "Dieses",
-  program: "Programm",
-  for: "für",
-  deaf: "Gehörlose",
-  we: "Wir",
-  made: "haben gemacht",
-  basic: "Basis",
-  set: "Set",
-  gestures: "Gesten",
-  thank_you: "Vielen Dank",
-  bye: "Tschüss"
+  all: "everyone",
+  hello: "hello",
+  welcome: "welcome",
+  this: "this",
+  program: "program",
+  for: "for",
+  deaf: "deaf",
+  we: "we",
+  made: "made",
+  basic: "basic",
+  set: "set",
+  gestures: "gestures",
+  thank_you: "thank you",
+  bye: "bye"
 };
+
 
 // ================== MEDIAPIPE INIT ==================
 async function initMediaPipe() {
@@ -123,77 +124,64 @@ function detectGesture(hand) {
   const ringUp   = hand[16].y < hand[14].y;
   const pinkyUp  = hand[20].y < hand[18].y;
 
-  // ================= GREETINGS =================
+  // =================================================
+  // REALISTIC ONE-HAND GESTURES (STATIC, WEB-SAFE)
+  // =================================================
 
-  // hello / all → open hand
-  if (indexUp && middleUp && ringUp && pinkyUp && !thumbUp) {
+  // HELLO / BYE → open hand
+  if (indexUp && middleUp && ringUp && pinkyUp) {
     return 'hello';
   }
 
-  // welcome → open hand + thumb
-  if (thumbUp && indexUp && middleUp && ringUp && pinkyUp) {
-    return 'welcome';
-  }
-
-  // ================= CORE WORDS =================
-
-  // this → index finger
-  if (indexUp && !middleUp && !ringUp && !pinkyUp && !thumbUp) {
+  // THIS → pointing (index finger)
+  if (indexUp && !middleUp && !ringUp && !pinkyUp) {
     return 'this';
   }
 
-  // we / three → index + middle
-  if (indexUp && middleUp && !ringUp && !pinkyUp) {
-    return 'we';
-  }
-
-  // program → index + middle + ring
-  if (indexUp && middleUp && ringUp && !pinkyUp) {
+  // PROGRAM → cupped hand (concept / object)
+  if (!indexUp && middleUp && ringUp && !pinkyUp) {
     return 'program';
   }
 
-  // for → index + pinky
-  if (indexUp && !middleUp && !ringUp && pinkyUp) {
+  // FOR → pointing forward (index + thumb)
+  if (indexUp && thumbUp && !middleUp && !ringUp && !pinkyUp) {
     return 'for';
   }
 
-  // deaf → ring finger only
-  if (!indexUp && !middleUp && ringUp && !pinkyUp) {
+  // DEAF → simplified ear-related gesture
+  // (index + middle folded, thumb visible)
+  if (thumbUp && !indexUp && !middleUp && ringUp && !pinkyUp) {
     return 'deaf';
   }
 
-  // ================= ACTION WORDS =================
+  // WE → fist with thumb on the side
+  if (!indexUp && !middleUp && !ringUp && !pinkyUp && thumbUp) {
+    return 'we';
+  }
 
-  // made → thumbs up only
+  // MADE → thumbs up
   if (thumbUp && !indexUp && !middleUp && !ringUp && !pinkyUp) {
     return 'made';
   }
 
-  // basic → middle + ring
-  if (!indexUp && middleUp && ringUp && !pinkyUp) {
+  // BASIC → flat hand down (base / foundation)
+  if (!thumbUp && middleUp && ringUp && pinkyUp && !indexUp) {
     return 'basic';
   }
 
-  // set → index + ring
-  if (indexUp && !middleUp && ringUp && !pinkyUp) {
+  // SET → fist
+  if (!thumbUp && !indexUp && !middleUp && !ringUp && !pinkyUp) {
     return 'set';
   }
 
-  // gestures → index + middle + pinky
-  if (indexUp && middleUp && !ringUp && pinkyUp) {
+  // GESTURES → index + pinky (hand symbol)
+  if (indexUp && !middleUp && !ringUp && pinkyUp) {
     return 'gestures';
   }
 
-  // ================= END WORDS =================
-
-  // thank_you → fist
-  if (!thumbUp && !indexUp && !middleUp && !ringUp && !pinkyUp) {
+  // THANK YOU → flat hand near chest (static approximation)
+  if (thumbUp && indexUp && !middleUp && !ringUp && !pinkyUp) {
     return 'thank_you';
-  }
-
-  // bye → pinky only
-  if (!indexUp && !middleUp && !ringUp && pinkyUp) {
-    return 'bye';
   }
 
   return '';
