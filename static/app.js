@@ -13,7 +13,7 @@ let lastGestureTime = 0;
 const transcript = [];
 let currentSentence = []; 
 
-// Mapping: Gesture Key -> Display Word
+// Mapping: Gesture Key - Display Word
 const DISPLAY_WORDS = {
   hello: "hello",
   this: "this",
@@ -230,7 +230,7 @@ function speakText(text) {
   if (!text || !window.speechSynthesis) return;
   window.speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'en-US'; 
+  u.lang = 'en-GB'; 
   u.rate = 1;
   window.speechSynthesis.speak(u);
 }
