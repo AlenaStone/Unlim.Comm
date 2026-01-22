@@ -11,9 +11,8 @@ let handLandmarker = null;
 let lastGesture = '';
 let lastGestureTime = 0;
 const transcript = [];
-let currentSentence = []; // Buffer for RAW words
+let currentSentence = []; 
 
-// Mapping: Gesture Key -> Display Word
 // Mapping: Gesture Key -> Display Word
 const DISPLAY_WORDS = {
   hello: "hello",
@@ -22,7 +21,7 @@ const DISPLAY_WORDS = {
   we: "we",
   made: "made",
   thank_you: "thank you",
-  all: "everyone"  // <--- ДОБАВИЛ: Жест 'all' покажет слово 'everyone'
+  all: "everyone"
 };
 
 // ================== MEDIAPIPE INIT ==================
@@ -93,7 +92,6 @@ function startHandDetection() {
     if (results.landmarks?.length) {
       const gesture = detectGesture(results.landmarks[0]);
 
-      // Debounce: 800ms delay to prevent flickering
       if (
         gesture &&
         gesture !== lastGesture &&
@@ -101,8 +99,6 @@ function startHandDetection() {
       ) {
         lastGesture = gesture;
         lastGestureTime = now;
-        
-        // Add word to temporary buffer
         addWordToBuffer(gesture);
       }
     }
@@ -114,9 +110,7 @@ function startHandDetection() {
 }
 
 // ================== GESTURE RECOGNITION ==================
-// ================== GESTURE RECOGNITION (FIXED) ==================
 function detectGesture(hand) {
-  // Y coordinates: Lower value = Higher on screen
   const thumbUp  = hand[4].y < hand[3].y;
   const indexUp  = hand[8].y < hand[6].y;
   const middleUp = hand[12].y < hand[10].y;
@@ -124,43 +118,39 @@ function detectGesture(hand) {
   const pinkyUp  = hand[20].y < hand[18].y;
 
   // 1. HELLO (Open Palm) 🖐
-  // All fingers UP
   if (thumbUp && indexUp && middleUp && ringUp && pinkyUp) {
     return 'hello';
   }
 
-  // 2. ALL / EVERYONE (Rock / Horns) 🤘
-  // Index & Pinky UP, others DOWN
+  // 2. ALL (Rock/Horns) 🤘
+  // Index & Pinky UP
   if (indexUp && pinkyUp && !middleUp && !ringUp) {
     return 'all';
   }
 
-  // 3. THIS (Index Finger Only) ☝️
-  // Index UP, Thumb & others DOWN (Strict check on thumb!)
+  // 3. THIS (Index Finger) ☝️
+  // Strict check: Thumb must be DOWN
   if (indexUp && !thumbUp && !middleUp && !ringUp && !pinkyUp) {
     return 'this';
   }
 
-  // 4. MADE (L-Shape / Gun) 👆+👍 <--- CHANGED THIS
-  // Thumb & Index UP, others DOWN
+  // 4. MADE (L-Shape / Gun) 👆+👍
+  // Thumb & Index UP
   if (thumbUp && indexUp && !middleUp && !ringUp && !pinkyUp) {
     return 'made';
   }
 
   // 5. WE (Fist) ✊
-  // All fingers DOWN
   if (!indexUp && !middleUp && !ringUp && !pinkyUp) {
     return 'we';
   }
 
   // 6. PROGRAM (Victory Sign) ✌️
-  // Index & Middle UP
   if (indexUp && middleUp && !ringUp && !pinkyUp) {
     return 'program';
   }
 
-  // 7. THANK YOU (Shaka / Phone) 🤙
-  // Thumb & Pinky UP
+  // 7. THANK YOU (Shaka) 🤙
   if (thumbUp && !indexUp && !middleUp && !ringUp && pinkyUp) {
     return 'thank_you';
   }
@@ -171,30 +161,27 @@ function detectGesture(hand) {
 // ================== BUFFER HANDLER ==================
 function addWordToBuffer(gestureKey) {
   const word = DISPLAY_WORDS[gestureKey] || gestureKey;
-  
-  // Add raw word to buffer
   currentSentence.push(word);
-
-  // Show raw words on overlay (Draft mode)
-  // e.g., "we made program"
   renderOverlay(currentSentence.join(' '));
 }
 
-// ================== SEND BUTTON LOGIC (THE MAGIC) ==================
+// ================== SEND BUTTON LOGIC ==================
 function handleSend() {
     if (currentSentence.length === 0) return;
 
-    // 1. Convert raw words to a smart sentence
+    // 1. Convert to smart sentence
     const smartSentence = refineSentence(currentSentence);
 
-    // 2. Add to the transcript list
+    // 2. Add to Transcript (Always)
     transcript.push(smartSentence);
     renderTranscript();
 
-    // 3. Speak the result
-    speakText(smartSentence);
+    // 3. Speak ONLY if toggle is checked
+    if (els.toggleVoice && els.toggleVoice.checked) {
+        speakText(smartSentence);
+    }
 
-    // 4. Clear the overlay for the next phrase
+    // 4. Clear Overlay
     currentSentence = [];
     renderOverlay('');
 }
@@ -211,7 +198,6 @@ function renderTranscript() {
     els.transcriptList.appendChild(p);
   });
   
-  // Auto-scroll to bottom
   els.transcriptList.scrollTop = els.transcriptList.scrollHeight;
 }
 
@@ -223,7 +209,7 @@ function renderOverlay(text) {
   bubble.className = 'subtitle';
   bubble.textContent = text;
   
-  // Overlay Styles
+  // Styles
   bubble.style.whiteSpace = "pre-wrap"; 
   bubble.style.wordWrap = "break-word";
   bubble.style.width = "90%";
@@ -235,7 +221,7 @@ function renderOverlay(text) {
 
   let size = Number(els.fontSize.value) || 28;
   if (text.length > 25) size = Math.max(18, size * 0.8);
-  bubble.style.fontSize = size + 'px';
+  bubble.style.fontSize = size + 'px';ы
   
   els.overlay.appendChild(bubble);
 }
@@ -249,16 +235,16 @@ function speakText(text) {
   window.speechSynthesis.speak(u);
 }
 
-// ================== SMART LOGIC (AI MOCKUP) ==================
+// ================== SMART LOGIC ==================
 function refineSentence(wordsArray) {
   const rawText = wordsArray.join(' ').toLowerCase();
 
-  // SCENARIO 1: GREETING
+  // Scenario 1: Greeting (Hello + All)
   if (rawText.includes('hello')) {
     return "Hello everyone! Welcome to our project.";
   }
 
-  // SCENARIO 2: PITCH (WE + MADE + PROGRAM)
+  // Scenario 2: Pitch (We + Made)
   if (
     (rawText.includes('we') && rawText.includes('made')) ||
     (rawText.includes('program'))
@@ -266,12 +252,12 @@ function refineSentence(wordsArray) {
     return "We developed this software to help mute people communicate efficiently.";
   }
 
-  // SCENARIO 3: CLOSING (THANK YOU)
+  // Scenario 3: Closing (Thank you)
   if (rawText.includes('thank')) {
     return "Thank you very much for your attention!";
   }
 
-  // FALLBACK
+  // Fallback
   const simple = wordsArray.join(' ');
   return simple.charAt(0).toUpperCase() + simple.slice(1) + ".";
 }
@@ -284,10 +270,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     preview: document.getElementById('preview'),
     overlay: document.getElementById('overlay'),
     
-    // Buttons
+    // Controls
     btnStart: document.getElementById('btnStart'),
     btnStop: document.getElementById('btnStop'),
-    btnSend: document.getElementById('btnSend'), // Main Action Button
+    btnSend: document.getElementById('btnSend'),
+    toggleVoice: document.getElementById('toggleVoice'), // NEW TOGGLE
     
     // Transcript Actions
     btnSpeak: document.getElementById('btnSpeak'), 
@@ -303,16 +290,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     themeToggle: document.getElementById('themeToggle'),
   };
 
-  // Event Listeners
+  // Listeners
   els.btnStart.addEventListener('click', startCamera);
   els.btnStop.addEventListener('click', stopCamera);
 
-  // === MAIN SEND BUTTON ===
   if (els.btnSend) {
       els.btnSend.addEventListener('click', handleSend);
   }
 
-  // Re-speak from transcript
   if (els.btnSpeak) {
     els.btnSpeak.addEventListener('click', () => {
        const text = els.transcriptList.lastElementChild?.textContent;
@@ -320,7 +305,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Undo / Clear Logic
   if (els.btnUndo) {
     els.btnUndo.addEventListener('click', () => {
       currentSentence.pop();
@@ -334,8 +318,21 @@ document.addEventListener('DOMContentLoaded', async () => {
       renderOverlay('');
     });
   }
+  
+  if (els.btnCopy) {
+      els.btnCopy.addEventListener('click', () => {
+        const textToCopy = Array.from(els.transcriptList.querySelectorAll('p'))
+            .map(p => p.textContent)
+            .join('\n');
+        
+        if (textToCopy) {
+          navigator.clipboard.writeText(textToCopy)
+            .then(() => alert('Copied!'))
+            .catch(err => console.error(err));
+        }
+      });
+  }
 
-  // Visual Settings
   els.fontSize.addEventListener('input', () => {
     renderOverlay(currentSentence.join(' '));
   });
@@ -345,6 +342,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     else renderOverlay('');
   });
 
-  // Start System
   await initMediaPipe();
 });

@@ -50,13 +50,18 @@
                     </div>
 
                     <!-- Camera controls -->
-                    <div class="controls">
-                        <div class="controls-row">
-                            <button id="btnStart">Start Camera</button>
-                            <button id="btnStop" disabled>Stop</button>
-                            <button id="btnSend" class="btn-accent" style="margin-left: 10px; background-color: #4CAF50; color: white;">
-                                         ✨ Send to Chat
-                            </button>
+                   <div class="controls-row" style="display: flex; align-items: center;">
+                        <button id="btnStart">Start Camera</button>
+                        <button id="btnStop" disabled>Stop</button>
+    
+                        <button id="btnSend" class="btn-accent" style="margin-left: 10px;  color: white;">
+                            Send Message
+                         </button>
+
+                        <label style="margin-left: 15px; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                        <input id="toggleVoice" type="checkbox" checked />
+                         <span>🔊 Voice Output</span>
+                        </label>
                         </div>
                         <!-- UI for overlay customization -->
                         <div class="controls-row">
@@ -104,7 +109,6 @@
                     <!-- Buttons for exporting / managing transcript -->
                     <div class="transcript-actions">
                         <button id="btnCopy">Copy</button>
-                       <button id="btnSpeak" class="btn-accent">🔊 Speak</button>
 
                         <button id="btnExportTxt">Export .txt</button>
                         <button id="btnUndo">Undo</button>
