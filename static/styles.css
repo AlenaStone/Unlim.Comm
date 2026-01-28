@@ -90,6 +90,7 @@ header {
 /* Header inner row uses full width, padded edges */
 .nav {
     display: flex;
+    
     align-items: center;
     justify-content: space-between;
     width: 100%;
@@ -145,6 +146,18 @@ nav li {
     align-items: center;
 }
 
+.lang-switch {
+    display: flex;
+    gap: 8px;          
+    align-items: center;
+}
+
+.lang-btn {
+    min-width: 44px;
+    padding: 8px 14px;
+}
+
+
 /* separator injected between items */
 nav li+li::before {
     content: "|";
@@ -182,6 +195,14 @@ nav a::after {
     background: linear-gradient(90deg, #7dd3fc, #a78bfa);
     transition: width 0.25s ease;
 }
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;  
+    flex-shrink: 0;   
+}
+
 
 nav a:hover::after,
 nav a[aria-current="page"]::after {
@@ -517,26 +538,6 @@ input[type="checkbox"] {
     line-height: 1.5;
 }
 
-/* ===== Language switch fix ===== */
-
-.lang-switch {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-
-.lang-btn {
-    min-width: 44px;
-    text-align: center;
-}
-
-/* Prevent header from cutting content */
-header,
-.nav,
-.nav-actions {
-    overflow: visible;
-}
 
 /* =========================
    FULL-WIDTH FOOTER
