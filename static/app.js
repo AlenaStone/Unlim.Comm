@@ -316,7 +316,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   document.querySelectorAll('.lang-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      currentLang = btn.dataset.lang;
+      currentLang = btn.dataset.langSwitch;
 
       document.querySelectorAll('.lang-btn')
         .forEach(b => b.classList.remove('active'));
