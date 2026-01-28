@@ -16,37 +16,17 @@ const transcript = [];
 let currentSentence = [];
 
 let currentLang = 'en';
+let voices = [];
 
 // ================== LANGUAGE DICTIONARY ==================
 const DISPLAY_WORDS = {
-  hello: {
-    en: "hello",
-    de: "hallo"
-  },
-  this: {
-    en: "this",
-    de: "this"
-  },
-  program: {
-    en: "program",
-    de: "Programm"
-  },
-  we: {
-    en: "we",
-    de: "wir"
-  },
-  made: {
-    en: "made",
-    de: "gemacht"
-  },
-  thank_you: {
-    en: "thank you",
-    de: "danke"
-  },
-  all: {
-    en: "everyone",
-    de: "alle"
-  }
+  hello: { en: "hello", de: "hallo" },
+  this: { en: "this", de: "this" },
+  program: { en: "program", de: "Programm" },
+  we: { en: "we", de: "wir" },
+  made: { en: "made", de: "gemacht" },
+  thank_you: { en: "thank you", de: "danke" },
+  all: { en: "everyone", de: "alle" }
 };
 
 // ================== MEDIAPIPE INIT ==================
@@ -124,7 +104,9 @@ function startHandDetection() {
       ) {
         lastGesture = gesture;
         lastGestureTime = now;
+
         addWordToBuffer(gesture);
+        highlightGestureCard(gesture);
       }
     }
 
@@ -153,6 +135,18 @@ function detectGesture(hand) {
   return '';
 }
 
+// ================== GESTURE BOOK HIGHLIGHT ==================
+function highlightGestureCard(gestureKey) {
+  document.querySelectorAll('.gesture-card')
+    .forEach(card => card.classList.remove('active'));
+
+  const card = document.querySelector(
+    `.gesture-card[data-gesture="${gestureKey}"]`
+  );
+
+  if (card) card.classList.add('active');
+}
+
 // ================== BUFFER HANDLER ==================
 function addWordToBuffer(gestureKey) {
   const word = DISPLAY_WORDS[gestureKey]?.[currentLang] || gestureKey;
@@ -179,14 +173,11 @@ function handleSend() {
 // ================== UI RENDERERS ==================
 function renderTranscript() {
   els.transcriptList.innerHTML = '';
-
   transcript.forEach(text => {
     const p = document.createElement('p');
     p.textContent = text;
     els.transcriptList.appendChild(p);
   });
-
-  els.transcriptList.scrollTop = els.transcriptList.scrollHeight;
 }
 
 function renderOverlay(text) {
@@ -209,11 +200,19 @@ function speakText(text) {
   if (!window.speechSynthesis) return;
 
   window.speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = currentLang === 'de' ? 'de-DE' : 'en-GB';
-  utterance.rate = 1;
+  const u = new SpeechSynthesisUtterance(text);
 
-  window.speechSynthesis.speak(utterance);
+  const preferredVoice = voices.find(v =>
+    currentLang === 'de'
+      ? v.lang.startsWith('de')
+      : v.lang.startsWith('en-GB') || v.lang.startsWith('en-US')
+  );
+
+  if (preferredVoice) u.voice = preferredVoice;
+  u.lang = currentLang === 'de' ? 'de-DE' : 'en-GB';
+  u.rate = 1;
+
+  window.speechSynthesis.speak(u);
 }
 
 // ================== SENTENCE LOGIC ==================
@@ -242,6 +241,28 @@ function refineSentence(words) {
   return simple.charAt(0).toUpperCase() + simple.slice(1) + '.';
 }
 
+// ================== THEME ==================
+function initTheme() {
+  const root = document.documentElement;
+  const saved = localStorage.getItem('theme');
+
+  if (saved === 'light') {
+    root.setAttribute('data-theme', 'light');
+  }
+
+  els.themeToggle?.addEventListener('click', () => {
+    const isLight = root.getAttribute('data-theme') === 'light';
+
+    if (isLight) {
+      root.removeAttribute('data-theme');
+      localStorage.removeItem('theme');
+    } else {
+      root.setAttribute('data-theme', 'light');
+      localStorage.setItem('theme', 'light');
+    }
+  });
+}
+
 // ================== INITIALIZATION ==================
 document.addEventListener('DOMContentLoaded', async () => {
 
@@ -265,6 +286,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     themeToggle: document.getElementById('themeToggle')
   };
 
+  initTheme();
+
   els.btnStart.addEventListener('click', startCamera);
   els.btnStop.addEventListener('click', stopCamera);
   els.btnSend.addEventListener('click', handleSend);
@@ -280,8 +303,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   els.btnCopy?.addEventListener('click', () => {
-    const text = transcript.join('\n');
-    navigator.clipboard.writeText(text);
+    navigator.clipboard.writeText(transcript.join('\n'));
   });
 
   document.querySelectorAll('.lang-btn').forEach(btn => {
@@ -303,6 +325,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   els.toggleOverlay.addEventListener('change', () => {
     renderOverlay(currentSentence.join(' '));
   });
+
+  speechSynthesis.onvoiceschanged = () => {
+    voices = speechSynthesis.getVoices();
+  };
 
   await initMediaPipe();
 });
