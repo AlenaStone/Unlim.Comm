@@ -21,7 +21,7 @@ let voices = [];
 // ================== LANGUAGE DICTIONARY ==================
 const DISPLAY_WORDS = {
   hello: { en: "hello", de: "hallo" },
-  this: { en: "this", de: "this" },
+  this: { en: "this", de: "dies" },
   program: { en: "program", de: "Programm" },
   we: { en: "we", de: "wir" },
   made: { en: "made", de: "gemacht" },
@@ -137,14 +137,26 @@ function detectGesture(hand) {
 
 // ================== GESTURE BOOK HIGHLIGHT ==================
 function highlightGestureCard(gestureKey) {
-  document.querySelectorAll('.gesture-card')
-    .forEach(card => card.classList.remove('active'));
+  const cards = document.querySelectorAll('.gesture-card');
+  if (!cards.length) return;
 
-  const card = document.querySelector(
-    `.gesture-card[data-gesture="${gestureKey}"]`
+  cards.forEach(card => card.classList.remove('active'));
+
+  const target = Array.from(cards).find(
+    card => card.dataset.gesture === gestureKey
   );
 
-  if (card) card.classList.add('active');
+  if (target) {
+    target.classList.add('active');
+    target.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+}
+
+// ================== GESTURE BOOK LANGUAGE ==================
+function updateGestureBookLanguage() {
+  document.querySelectorAll('[data-lang]').forEach(el => {
+    el.hidden = el.dataset.lang !== currentLang;
+  });
 }
 
 // ================== BUFFER HANDLER ==================
@@ -202,15 +214,24 @@ function speakText(text) {
   window.speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
 
-  const preferredVoice = voices.find(v =>
-    currentLang === 'de'
-      ? v.lang.startsWith('de')
-      : v.lang.startsWith('en-GB') || v.lang.startsWith('en-US')
-  );
+  let voice = null;
 
-  if (preferredVoice) u.voice = preferredVoice;
-  u.lang = currentLang === 'de' ? 'de-DE' : 'en-GB';
+  if (currentLang === 'de') {
+    voice = voices.find(v => v.lang === 'de-DE');
+    u.lang = 'de-DE';
+  } else {
+    voice = voices.find(v => v.lang === 'en-GB' || v.lang === 'en-US');
+    u.lang = 'en-GB';
+  }
+
+  if (!voice) {
+    console.warn('Preferred voice not available, skipping speech');
+    return;
+  }
+
+  u.voice = voice;
   u.rate = 1;
+  u.pitch = 1;
 
   window.speechSynthesis.speak(u);
 }
@@ -315,6 +336,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       btn.classList.add('active');
 
       renderOverlay(currentSentence.join(' '));
+      updateGestureBookLanguage();
     });
   });
 
@@ -329,6 +351,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   speechSynthesis.onvoiceschanged = () => {
     voices = speechSynthesis.getVoices();
   };
+
+  updateGestureBookLanguage();
 
   await initMediaPipe();
 });

@@ -148,90 +148,152 @@
 </section>
 
 <!-- ================= GESTURE BOOK ================= -->
-
 <section id="gestures" aria-labelledby="gestures-title">
-    <h2 id="gestures-title">Gesture Book</h2>
+  <h2 id="gestures-title">Gesture Book</h2>
 
-    <div class="gestures-grid">
+  <div class="gestures-grid">
 
-        <div class="gesture-card" data-gesture="hello">
-            <div class="card-top">
-                <img src="../static/assets/hello.gif" alt="Hello gesture" />
-            </div>
-            <div class="card-body">
-                <span class="gesture-tag">Basics</span>
-                <h3>Hello</h3>
-                <p>All fingers up. Open palm facing the camera.</p>
-            </div>
-        </div>
+    <!-- HELLO -->
+    <div class="gesture-card" data-gesture="hello">
+      <div class="card-top">
+        <img src="../static/assets/hello.gif" alt="Hello gesture" />
+      </div>
+      <div class="card-body">
+        <span class="gesture-tag">Basics</span>
 
-        <div class="gesture-card" data-gesture="all">
-            <div class="card-top">
-                <img src="../static/assets/all.gif" alt="All gesture" />
-            </div>
-            <div class="card-body">
-                <span class="gesture-tag">Group</span>
-                <h3>All / Everyone</h3>
-                <p>Index and Pinky fingers up. Other fingers closed.</p>
-            </div>
-        </div>
+        <h3>
+          <span data-lang="en">Hello</span>
+          <span data-lang="de" hidden>Hallo</span>
+        </h3>
 
-        <div class="gesture-card" data-gesture="we">
-            <div class="card-top">
-                <img src="../static/assets/we.gif" alt="We gesture" />
-            </div>
-            <div class="card-body">
-                <span class="gesture-tag">Basics</span>
-                <h3>We</h3>
-                <p>All fingers closed. Hand forms a fist.</p>
-            </div>
-        </div>
-
-        <div class="gesture-card" data-gesture="made">
-            <div class="card-top">
-                <img src="../static/assets/made.gif" alt="Made gesture" />
-            </div>
-            <div class="card-body">
-                <span class="gesture-tag">Action</span>
-                <h3>Made</h3>
-                <p>Thumb and Index finger up, forming an L-shape.</p>
-            </div>
-        </div>
-
-        <div class="gesture-card" data-gesture="program">
-            <div class="card-top">
-                <img src="../static/assets/program.gif" alt="Program gesture" />
-            </div>
-            <div class="card-body">
-                <span class="gesture-tag">Concept</span>
-                <h3>Program</h3>
-                <p>Index and Middle finger up (Victory sign).</p>
-            </div>
-        </div>
-
-        <div class="gesture-card" data-gesture="this">
-            <div class="card-top">
-                <img src="../static/assets/this.gif" alt="This gesture" />
-            </div>
-            <div class="card-body">
-                <span class="gesture-tag">Pointer</span>
-                <h3>This</h3>
-                <p>Only the Index finger is up. All other fingers down.</p>
-            </div>
-        </div>
-
-        <div class="gesture-card" data-gesture="thank_you">
-            <div class="card-top">
-                <img src="../static/assets/thankyou.gif" alt="Thank you gesture" />
-            </div>
-            <div class="card-body">
-                <span class="gesture-tag">Politeness</span>
-                <h3>Thank You</h3>
-                <p>Thumb and Pinky finger up (Shaka / phone shape).</p>
-            </div>
-        </div>
-
+        <p>
+          <span data-lang="en">All fingers up. Open palm facing the camera.</span>
+          <span data-lang="de" hidden>Alle Finger ausgestreckt. Offene Handfläche zur Kamera.</span>
+        </p>
+      </div>
     </div>
+
+    <!-- ALL -->
+    <div class="gesture-card" data-gesture="all">
+      <div class="card-top">
+        <img src="../static/assets/all.gif" alt="All gesture" />
+      </div>
+      <div class="card-body">
+        <span class="gesture-tag">Group</span>
+
+        <h3>
+          <span data-lang="en">All / Everyone</span>
+          <span data-lang="de" hidden>Alle / Jeder</span>
+        </h3>
+
+        <p>
+          <span data-lang="en">Index and Pinky fingers up. Other fingers closed.</span>
+          <span data-lang="de" hidden>Zeige- und kleiner Finger ausgestreckt, andere Finger geschlossen.</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- WE -->
+    <div class="gesture-card" data-gesture="we">
+      <div class="card-top">
+        <img src="../static/assets/we.gif" alt="We gesture" />
+      </div>
+      <div class="card-body">
+        <span class="gesture-tag">Basics</span>
+
+        <h3>
+          <span data-lang="en">We</span>
+          <span data-lang="de" hidden>Wir</span>
+        </h3>
+
+        <p>
+          <span data-lang="en">All fingers closed. Hand forms a fist.</span>
+          <span data-lang="de" hidden>Alle Finger geschlossen. Die Hand bildet eine Faust.</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- MADE -->
+    <div class="gesture-card" data-gesture="made">
+      <div class="card-top">
+        <img src="../static/assets/made.gif" alt="Made gesture" />
+      </div>
+      <div class="card-body">
+        <span class="gesture-tag">Action</span>
+
+        <h3>
+          <span data-lang="en">Made</span>
+          <span data-lang="de" hidden>Gemacht</span>
+        </h3>
+
+        <p>
+          <span data-lang="en">Thumb and Index finger up, forming an L-shape.</span>
+          <span data-lang="de" hidden>Daumen und Zeigefinger ausgestreckt, L-Form.</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- PROGRAM -->
+    <div class="gesture-card" data-gesture="program">
+      <div class="card-top">
+        <img src="../static/assets/program.gif" alt="Program gesture" />
+      </div>
+      <div class="card-body">
+        <span class="gesture-tag">Concept</span>
+
+        <h3>
+          <span data-lang="en">Program</span>
+          <span data-lang="de" hidden>Programm</span>
+        </h3>
+
+        <p>
+          <span data-lang="en">Index and Middle finger up (Victory sign).</span>
+          <span data-lang="de" hidden>Zeige- und Mittelfinger ausgestreckt (Victory-Zeichen).</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- THIS -->
+    <div class="gesture-card" data-gesture="this">
+      <div class="card-top">
+        <img src="../static/assets/this.gif" alt="This gesture" />
+      </div>
+      <div class="card-body">
+        <span class="gesture-tag">Pointer</span>
+
+        <h3>
+          <span data-lang="en">This</span>
+          <span data-lang="de" hidden>Dies</span>
+        </h3>
+
+        <p>
+          <span data-lang="en">Only the Index finger is up. All other fingers down.</span>
+          <span data-lang="de" hidden>Nur der Zeigefinger ist ausgestreckt, alle anderen Finger unten.</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- THANK YOU -->
+    <div class="gesture-card" data-gesture="thank_you">
+      <div class="card-top">
+        <img src="../static/assets/thankyou.gif" alt="Thank you gesture" />
+      </div>
+      <div class="card-body">
+        <span class="gesture-tag">Politeness</span>
+
+        <h3>
+          <span data-lang="en">Thank You</span>
+          <span data-lang="de" hidden>Danke</span>
+        </h3>
+
+        <p>
+          <span data-lang="en">Thumb and Pinky finger up (Shaka / phone shape).</span>
+          <span data-lang="de" hidden>Daumen und kleiner Finger ausgestreckt (Telefon-Geste).</span>
+        </p>
+      </div>
+    </div>
+
+  </div>
 </section>
 
 </main>
