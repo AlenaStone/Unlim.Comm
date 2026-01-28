@@ -306,7 +306,7 @@ section {
     color: #fff;
     text-align: center;
     box-shadow: 0 0 12px rgba(125, 211, 252, .22);
-    white-space: nowrap;
+    white-space: normal;
     max-width: 90%;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -494,7 +494,7 @@ input[type="checkbox"] {
     padding: 16px 18px 22px;
 }
 
-.gesture-label {
+.gesture-tag {
     display: inline-block;
     background: rgba(125, 211, 252, 0.12);
     color: var(--accent);
