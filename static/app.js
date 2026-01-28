@@ -21,7 +21,7 @@ let voices = [];
 // ================== LANGUAGE DICTIONARY ==================
 const DISPLAY_WORDS = {
   hello: { en: "hello", de: "hallo" },
-  this: { en: "this", de: "dies" },
+  this: { en: "this", de: "this" },
   program: { en: "program", de: "Programm" },
   we: { en: "we", de: "wir" },
   made: { en: "made", de: "gemacht" },
@@ -152,13 +152,6 @@ function highlightGestureCard(gestureKey) {
   }
 }
 
-// ================== GESTURE BOOK LANGUAGE ==================
-function updateGestureBookLanguage() {
-  document.querySelectorAll('[data-lang]').forEach(el => {
-    el.hidden = el.dataset.lang !== currentLang;
-  });
-}
-
 // ================== BUFFER HANDLER ==================
 function addWordToBuffer(gestureKey) {
   const word = DISPLAY_WORDS[gestureKey]?.[currentLang] || gestureKey;
@@ -217,15 +210,17 @@ function speakText(text) {
   let voice = null;
 
   if (currentLang === 'de') {
-    voice = voices.find(v => v.lang === 'de-DE');
+    voice = voices.find(v => v.lang === 'de-DE' || v.lang.startsWith('de'));
     u.lang = 'de-DE';
   } else {
-    voice = voices.find(v => v.lang === 'en-GB' || v.lang === 'en-US');
+    voice = voices.find(v =>
+      v.lang === 'en-GB' || v.lang === 'en-US'
+    );
     u.lang = 'en-GB';
   }
 
   if (!voice) {
-    console.warn('Preferred voice not available, skipping speech');
+    console.warn('Preferred voice not found, speech skipped');
     return;
   }
 
@@ -336,7 +331,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       btn.classList.add('active');
 
       renderOverlay(currentSentence.join(' '));
-      updateGestureBookLanguage();
     });
   });
 
@@ -351,8 +345,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   speechSynthesis.onvoiceschanged = () => {
     voices = speechSynthesis.getVoices();
   };
-
-  updateGestureBookLanguage();
 
   await initMediaPipe();
 });
