@@ -517,6 +517,27 @@ input[type="checkbox"] {
     line-height: 1.5;
 }
 
+/* ===== Language switch fix ===== */
+
+.lang-switch {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.lang-btn {
+    min-width: 44px;
+    text-align: center;
+}
+
+/* Prevent header from cutting content */
+header,
+.nav,
+.nav-actions {
+    overflow: visible;
+}
+
 /* =========================
    FULL-WIDTH FOOTER
    ========================= */

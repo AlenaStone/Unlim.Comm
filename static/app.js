@@ -51,23 +51,18 @@ async function initMediaPipe() {
 async function startCamera() {
   if (mediaStream) return;
 
-  try {
-    mediaStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'user' },
-      audio: false
-    });
+  mediaStream = await navigator.mediaDevices.getUserMedia({
+    video: { facingMode: 'user' },
+    audio: false
+  });
 
-    els.preview.srcObject = mediaStream;
-    await els.preview.play();
+  els.preview.srcObject = mediaStream;
+  await els.preview.play();
 
-    els.btnStart.disabled = true;
-    els.btnStop.disabled = false;
+  els.btnStart.disabled = true;
+  els.btnStop.disabled = false;
 
-    startHandDetection();
-  } catch (err) {
-    console.error("Camera error:", err);
-    alert("Camera could not be started");
-  }
+  startHandDetection();
 }
 
 function stopCamera() {
@@ -137,19 +132,14 @@ function detectGesture(hand) {
 
 // ================== GESTURE BOOK HIGHLIGHT ==================
 function highlightGestureCard(gestureKey) {
-  const cards = document.querySelectorAll('.gesture-card');
-  if (!cards.length) return;
+  document.querySelectorAll('.gesture-card')
+    .forEach(card => card.classList.remove('active'));
 
-  cards.forEach(card => card.classList.remove('active'));
-
-  const target = Array.from(cards).find(
-    card => card.dataset.gesture === gestureKey
+  const card = document.querySelector(
+    `.gesture-card[data-gesture="${gestureKey}"]`
   );
 
-  if (target) {
-    target.classList.add('active');
-    target.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-  }
+  if (card) card.classList.add('active');
 }
 
 // ================== GESTURE BOOK LANGUAGE ==================
@@ -224,10 +214,7 @@ function speakText(text) {
     u.lang = 'en-GB';
   }
 
-  if (!voice) {
-    console.warn('Preferred voice not available, skipping speech');
-    return;
-  }
+  if (!voice) return;
 
   u.voice = voice;
   u.rate = 1;
@@ -353,6 +340,5 @@ document.addEventListener('DOMContentLoaded', async () => {
   };
 
   updateGestureBookLanguage();
-
   await initMediaPipe();
 });
