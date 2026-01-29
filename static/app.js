@@ -26,8 +26,7 @@ const DISPLAY_WORDS = {
   we: { en: "we", de: "wir" },
   made: { en: "made", de: "gemacht" },
   thank_you: { en: "thank you", de: "danke" },
-  all: { en: "everyone", de: "alle" },
-  yes:{ en: "yes", de: "ja" }
+  all: { en: "everyone", de: "alle" }
 };
 
 // ================== MEDIAPIPE INIT ==================
@@ -120,7 +119,6 @@ function detectGesture(hand) {
   const ringUp   = hand[16].y < hand[14].y;
   const pinkyUp  = hand[20].y < hand[18].y;
   
-  if (thumbUp && !indexUp && !middleUp && !ringUp && !pinkyUp) {return "yes";}
   if (thumbUp && indexUp && middleUp && ringUp && pinkyUp) return 'hello';
   if (indexUp && pinkyUp && !middleUp && !ringUp) return 'all';
   if (indexUp && !thumbUp && !middleUp && !ringUp && !pinkyUp) return 'this';
