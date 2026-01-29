@@ -209,14 +209,18 @@ function speakText(text) {
   let voice = null;
 
   if (currentLang === 'de') {
-    voice = voices.find(v => v.lang === 'de-DE');
+    voice = voices.find(v => v.lang.startsWith('de'));
     u.lang = 'de-DE';
   } else {
-    voice = voices.find(v => v.lang === 'en-GB' || v.lang === 'en-US');
-    u.lang = 'en-GB';
+    voice = voices.find(v => v.lang.startsWith('en'));
+    u.lang = 'en-US';
   }
 
-  if (!voice) return;
+  // fallback: первый доступный голос
+  if (!voice && voices.length) {
+    voice = voices[0];
+    u.lang = voice.lang;
+  }
 
   u.voice = voice;
   u.rate = 1;
@@ -224,6 +228,7 @@ function speakText(text) {
 
   window.speechSynthesis.speak(u);
 }
+
 
 // ================== SENTENCE LOGIC ==================
 function refineSentence(words) {
